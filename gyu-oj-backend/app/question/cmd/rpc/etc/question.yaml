@@ -1,0 +1,19 @@
+Name: question-rpc
+ListenOn: 0.0.0.0:2002
+Mode: dev
+
+JwtAuth:
+  AccessSecret: ae0536f9-6450-4606-8e13-5a19ed505da0
+  AccessExpire: 604800 # 一周
+
+Etcd:
+  Hosts:
+  - 127.0.0.1:2379
+  Key: question-rpc
+
+DB:
+  DataSource: root:2288.xzk@tcp(127.0.0.1:3306)/oj_db?charset=utf8mb4&parseTime=True&loc=Local
+
+Log:
+  ServiceName: question-rpc
+  Level: info

@@ -1,0 +1,71 @@
+syntax = "v1"
+
+info(
+	title: "question service"
+	desc: "question service"
+	author: "GyuXiao"
+	version: "v1"
+)
+
+import "question/question.api"
+
+// Question 模块
+
+@server(
+	prefix: gyu_oj/v1
+	group: question
+	jwt: Auth
+)
+
+service question {
+	@doc "admin create question"
+	@handler createQuestion
+	post /question/add (CreateQuestionReq) returns (CreateQuestionResp)
+
+	@doc "admin delete question"
+	@handler deleteQuestion
+	post /question/delete (DeleteQuestionReq) returns (DeleteQuestionResp)
+
+	@doc "admin update question"
+	@handler updateQuestion
+	post /question/update (UpdateQuestionReq) returns (UpdateQuestionResp)
+}
+
+@server(
+	prefix: gyu_oj/v1
+	group: question
+)
+
+service question {
+	@doc "query question"
+	@handler queryQuestion
+	get /question/query (GetQuestionReq) returns (GetQuestionResp)
+
+	@doc "query question List"
+	@handler queryQuestionList
+	get /question/list (GetQuestionListReq) returns (GetQuestionListResp)
+}
+
+// QuestionSubmit 模块
+
+@server(
+	prefix: gyu_oj/v1
+	group: questionSubmit
+	jwt: Auth
+)
+
+service question {
+	@doc "create questionSubmit"
+	@handler createQuestionSubmit
+	post /questionSubmit/create (CreateQuestionSubmitReq) returns (CreateQuestionSubmitResp)
+
+	@doc "query questionSubmit List"
+	@handler queryQuestionSubmitList
+	get /questionSubmit/list (QueryQuestionSubmitReq) returns (QueryQuestionSubmitResp)
+}
+
+// 在 api/desc 目录下执行
+// goctl api go -api question.api -dir ../  --style=goZero
+
+// 代码格式化
+// goctl api format --dir question.api

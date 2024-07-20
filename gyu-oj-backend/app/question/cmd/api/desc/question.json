@@ -1,0 +1,815 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "question service",
+    "description": "question service",
+    "version": "v1"
+  },
+  "host": "127.0.0.1:2001",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/gyu_oj/v1/question/add": {
+      "post": {
+        "summary": "admin create question",
+        "operationId": "createQuestion",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/CreateQuestionResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateQuestionReq"
+            }
+          }
+        ],
+        "tags": [
+          "question"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
+    "/gyu_oj/v1/question/delete": {
+      "post": {
+        "summary": "admin delete question",
+        "operationId": "deleteQuestion",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/DeleteQuestionResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DeleteQuestionReq"
+            }
+          }
+        ],
+        "tags": [
+          "question"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
+    "/gyu_oj/v1/question/list": {
+      "get": {
+        "summary": "query question List",
+        "operationId": "queryQuestionList",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/GetQuestionListResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "current",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "sortField",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "title",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "question"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      }
+    },
+    "/gyu_oj/v1/question/query": {
+      "get": {
+        "summary": "query question",
+        "operationId": "queryQuestion",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/GetQuestionResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "question"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      }
+    },
+    "/gyu_oj/v1/question/update": {
+      "post": {
+        "summary": "admin update question",
+        "operationId": "updateQuestion",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/UpdateQuestionResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateQuestionReq"
+            }
+          }
+        ],
+        "tags": [
+          "question"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
+    "/gyu_oj/v1/questionSubmit/create": {
+      "post": {
+        "summary": "create questionSubmit",
+        "operationId": "createQuestionSubmit",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/CreateQuestionSubmitResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "description": " 已登陆用户才能提交代码",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateQuestionSubmitReq"
+            }
+          }
+        ],
+        "tags": [
+          "questionSubmit"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
+    "/gyu_oj/v1/questionSubmit/list": {
+      "get": {
+        "summary": "query questionSubmit List",
+        "operationId": "queryQuestionSubmitList",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/QueryQuestionSubmitResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "current",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "sortField",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "language",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "questionId",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "questionSubmit"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "CreateQuestionReq": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "answers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "judgeCases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JudgeCase"
+          }
+        },
+        "judgeConfig": {
+          "$ref": "#/definitions/JudgeConfig"
+        }
+      },
+      "title": "CreateQuestionReq",
+      "required": [
+        "title",
+        "content",
+        "tags",
+        "answers",
+        "judgeCases",
+        "judgeConfig"
+      ]
+    },
+    "CreateQuestionResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "title": "CreateQuestionResp",
+      "required": [
+        "id"
+      ]
+    },
+    "CreateQuestionSubmitReq": {
+      "type": "object",
+      "properties": {
+        "language": {
+          "type": "string"
+        },
+        "submitCode": {
+          "type": "string"
+        },
+        "questionId": {
+          "type": "string"
+        }
+      },
+      "title": "CreateQuestionSubmitReq",
+      "required": [
+        "language",
+        "submitCode",
+        "questionId"
+      ]
+    },
+    "CreateQuestionSubmitResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "title": "CreateQuestionSubmitResp",
+      "required": [
+        "id"
+      ]
+    },
+    "DeleteQuestionReq": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "title": "DeleteQuestionReq",
+      "required": [
+        "id"
+      ]
+    },
+    "DeleteQuestionResp": {
+      "type": "object",
+      "properties": {
+        "isDeleted": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      },
+      "title": "DeleteQuestionResp",
+      "required": [
+        "isDeleted"
+      ]
+    },
+    "GetQuestionListReq": {
+      "type": "object",
+      "properties": {
+        "current": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "sortField": {
+          "type": "string"
+        },
+        "sortOrder": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "title": "GetQuestionListReq",
+      "required": [
+        "current",
+        "pageSize"
+      ]
+    },
+    "GetQuestionListResp": {
+      "type": "object",
+      "properties": {
+        "questionList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/QuestionVO"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "GetQuestionListResp",
+      "required": [
+        "questionList",
+        "total"
+      ]
+    },
+    "GetQuestionReq": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "title": "GetQuestionReq",
+      "required": [
+        "id"
+      ]
+    },
+    "GetQuestionResp": {
+      "type": "object",
+      "properties": {
+        "question": {
+          "$ref": "#/definitions/QuestionVO"
+        }
+      },
+      "title": "GetQuestionResp",
+      "required": [
+        "question"
+      ]
+    },
+    "JudgeCase": {
+      "type": "object",
+      "properties": {
+        "input": {
+          "type": "string"
+        },
+        "output": {
+          "type": "string"
+        }
+      },
+      "title": "JudgeCase",
+      "required": [
+        "input",
+        "output"
+      ]
+    },
+    "JudgeConfig": {
+      "type": "object",
+      "properties": {
+        "timeLimit": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "memoryLimit": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "JudgeConfig",
+      "required": [
+        "timeLimit",
+        "memoryLimit"
+      ]
+    },
+    "JudgeInfo": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "time": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "memory": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "JudgeInfo",
+      "required": [
+        "message",
+        "time",
+        "memory"
+      ]
+    },
+    "QueryQuestionSubmitReq": {
+      "type": "object",
+      "properties": {
+        "current": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "sortField": {
+          "type": "string"
+        },
+        "sortOrder": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "questionId": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "QueryQuestionSubmitReq",
+      "required": [
+        "current",
+        "pageSize"
+      ]
+    },
+    "QueryQuestionSubmitResp": {
+      "type": "object",
+      "properties": {
+        "questionSubmitList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/QuestionSubmitVO"
+          }
+        }
+      },
+      "title": "QueryQuestionSubmitResp",
+      "required": [
+        "questionSubmitList"
+      ]
+    },
+    "QuestionSubmitVO": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        },
+        "submitCode": {
+          "type": "string"
+        },
+        "judgeInfo": {
+          "$ref": "#/definitions/JudgeInfo"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "questionId": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "createTime": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "updateTime": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "QuestionSubmitVO",
+      "required": [
+        "id",
+        "language",
+        "submitCode",
+        "judgeInfo",
+        "status",
+        "questionId",
+        "userId",
+        "createTime",
+        "updateTime"
+      ]
+    },
+    "QuestionVO": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "answers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "submitNum": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "acceptedNum": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "judgeConfig": {
+          "$ref": "#/definitions/JudgeConfig"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "createTime": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "updateTime": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "QuestionVO",
+      "required": [
+        "id",
+        "title",
+        "content",
+        "tags",
+        "answers",
+        "submitNum",
+        "acceptedNum",
+        "judgeConfig",
+        "userId",
+        "createTime",
+        "updateTime"
+      ]
+    },
+    "UpdateQuestionReq": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "answers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "judgeCases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JudgeCase"
+          }
+        },
+        "judgeConfig": {
+          "$ref": "#/definitions/JudgeConfig"
+        }
+      },
+      "title": "UpdateQuestionReq",
+      "required": [
+        "id"
+      ]
+    },
+    "UpdateQuestionResp": {
+      "type": "object",
+      "properties": {
+        "isUpdated": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      },
+      "title": "UpdateQuestionResp",
+      "required": [
+        "isUpdated"
+      ]
+    }
+  },
+  "securityDefinitions": {
+    "apiKey": {
+      "type": "apiKey",
+      "description": "Enter JWT Bearer token **_only_**",
+      "name": "Authorization",
+      "in": "header"
+    }
+  }
+}

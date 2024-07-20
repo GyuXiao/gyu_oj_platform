@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="2e14608c-2611-4401-ac81-6953c5cb9a93" name="Changes" comment="feat: 1,完善 gyu-api-backend 项目的调用接口逻辑" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager">
+    <option name="groupingKeys">
+      <option value="directory" />
+    </option>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Proto File" />
+        <option value="Go File" />
+        <option value="Api File" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" url="file://$PROJECT_DIR$/../../Go" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/../../third_go/pkg/mod/github.com/!gyu!xiao/gyu-api-sdk@v0.0.4/sdk/client.go" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/../../third_go/pkg/mod/github.com/!gyu!xiao/gyu-api-sdk@v0.0.4/sdk/sign.go" root0="SKIP_INSPECTION" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
+  <component name="ProjectId" id="2e5e6xPdSWUMq8zfe2o8vfsCD7M" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;DefaultApiTemplateProperty&quot;: &quot;Api File&quot;,
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;DefaultProtoTemplateProperty&quot;: &quot;Proto File&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.automatic.dependencies.download&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/gyu-oj-platform/gyu-oj-backend/app/question/models&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.DirectoryMappings&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;D:\\GoLand 2023.2.4\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql&quot;
+    ],
+    &quot;RunConfigurationTargetLRU&quot;: [
+      &quot;92c06c26-b451-40d8-9965-9264c04e17db/schema/\&quot;api_db\&quot;&quot;
+    ]
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\gyu-oj-platform\gyu-oj-backend\app\question\models" />
+      <recent name="D:\api-open-platform\gyu-api-backend\app\admin\rpc\internal\logic" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\gyu-oj-platform\gyu-oj-backend\app\user\models\dao" />
+      <recent name="D:\gyu-oj-platform\gyu-oj-backend\app\user\models" />
+      <recent name="D:\api-open-platform\gyu-api-backend\common" />
+      <recent name="D:\api-open-platform\gyu-api-backend\app\admin\rpc\internal\logic\user" />
+      <recent name="D:\api-open-platform\gyu-api-backend\app\admin" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Go Build.go build gyu-oj-backend/app/question/cmd/api">
+    <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="gyu-oj-backend" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="gyu-api-backend" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build gyu-oj-backend/app/question/cmd/api" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="gyu-oj-backend" />
+      <working_directory value="$PROJECT_DIR$/app/question/cmd/api" />
+      <kind value="PACKAGE" />
+      <package value="gyu-oj-backend/app/question/cmd/api" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/app/question/cmd/api/question.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build gyu-oj-backend/app/question/cmd/rpc" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="gyu-oj-backend" />
+      <working_directory value="$PROJECT_DIR$/app/question/cmd/rpc" />
+      <kind value="PACKAGE" />
+      <package value="gyu-oj-backend/app/question/cmd/rpc" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/app/question/cmd/rpc/question.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build gyu-oj-backend/app/user/cmd/api" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="gyu-oj-backend" />
+      <working_directory value="$PROJECT_DIR$/app/user/cmd/api" />
+      <kind value="PACKAGE" />
+      <package value="gyu-oj-backend/app/user/cmd/api" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/app/user/cmd/api/user.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build gyu-oj-backend/app/user/cmd/rpc" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="gyu-oj-backend" />
+      <working_directory value="$PROJECT_DIR$/app/user/cmd/rpc" />
+      <kind value="PACKAGE" />
+      <package value="gyu-oj-backend/app/user/cmd/rpc" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/app/user/cmd/rpc/user.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build gyu-oj-backend/generate" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="gyu-oj-backend" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="gyu-oj-backend/generate" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/generate/main.go" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
+      <module name="gyu-oj-backend" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="DIRECTORY" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Go Build.go build gyu-oj-backend/app/question/cmd/api" />
+      <item itemvalue="Go Build.go build gyu-oj-backend/app/question/cmd/rpc" />
+      <item itemvalue="Go Build.go build gyu-oj-backend/generate" />
+      <item itemvalue="Go Build.go build gyu-oj-backend/app/user/cmd/api" />
+      <item itemvalue="Go Build.go build gyu-oj-backend/app/user/cmd/rpc" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Build.go build gyu-oj-backend/app/question/cmd/api" />
+        <item itemvalue="Go Build.go build gyu-oj-backend/app/question/cmd/rpc" />
+        <item itemvalue="Go Build.go build gyu-oj-backend/app/user/cmd/rpc" />
+        <item itemvalue="Go Build.go build gyu-oj-backend/app/user/cmd/api" />
+        <item itemvalue="Go Build.go build gyu-oj-backend/generate" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/.." />
+    </ignored-roots>
+    <MESSAGE value="feat: 1,前端和后端项目补充接口信息的新增，更新，删除逻辑" />
+    <MESSAGE value="feat: 1,补充调用接口 SDK 包; 2,补充模拟接口项目" />
+    <MESSAGE value="feat: 1,前端补充接口信息页和接口详细页; 2,后端补充根据 id 查找 interfaceInfo 信息的接口; 3,补充接口上线和下线功能" />
+    <MESSAGE value="feat: 1,接口信息增加 requestParams 字段; 2,前后端补充在线调用接口功能" />
+    <MESSAGE value="feat: 1,前端优化管理页按钮样式; 2,后端补充用户接口关系信息的 model 层代码" />
+    <MESSAGE value="feat: 1,前端优化接口调用结果的渲染; 2,前端调整 setToken 的时机; 3,后端补充用户接口关系的 models 层代码以及自测程序;" />
+    <MESSAGE value="feat: 1,网关项目补充用户鉴权和请求转发功能; 2,模拟接口项目删除用户鉴权逻辑" />
+    <MESSAGE value="feat: 1,gyu-api-backend 项目补充 rpc 模块" />
+    <MESSAGE value="feat: 1,gyu-api-backend 项目补充 rpc 服务模块" />
+    <MESSAGE value="feat: 1,gyu-api-backend 项目完善 rpc 服务模块的 interfaceInfo 部分" />
+    <MESSAGE value="feat: 1,gyu-api-backend 引入 mapstructure 库来优化 map 和 struct 的转换" />
+    <MESSAGE value="feat: 1,gyu-api-backend 项目补充更新用户接口调用次数逻辑; 2,gyu-api-gateway 补充调用 backend 项目提供的 rpc 服务的逻辑; 3,gyu-api-gateway 项目补充 config 文件的使用;" />
+    <MESSAGE value="feat: 1,gyu-api-backend 和 gyu-api-frontend 项目补充接口分析功能; 2,gyu-api-backend 项目对于外部请求的身份校验操作, 统一在 api 模块处理" />
+    <MESSAGE value="feat: 1,gyu-api-backend 规范调用接口的返回参数; 2,优化上线接口的逻辑" />
+    <MESSAGE value="feat: 1,gyu-api-backend 增加参数校验和优化部分代码逻辑;" />
+    <MESSAGE value="feat: 1,gyu-api-backend 的 FindListPage 更新为根据接口名称快速查询; 2, gyu-api-frontend 补充接口删除按钮的二次弹窗提醒;" />
+    <MESSAGE value="feat: 1,gyu-api-backend 项目优化 topN 的 查询逻辑; 2,gyu-api-frontend 项目优化接口分析页的 EChart 图展示" />
+    <MESSAGE value="feat: 1,规范化 gyu-api-backend 项目的请求返回,方便前端项目的错误提示; 2,gyu-api-backend 项目补充参数校验; 3,优化 gyu-api-frontend 项目的接口删除二次提醒; 4,解决 gyu-api-frontend 项目分析页当数据为空时页面崩溃问题;" />
+    <MESSAGE value="feat: 1,优化 gyu-api-backend 项目的查询 topN 调用次数的接口的 model 层逻辑" />
+    <MESSAGE value="feat: 1,完善 gyu-api-backend 项目的调用接口逻辑" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 1,完善 gyu-api-backend 项目的调用接口逻辑" />
+  </component>
+  <component name="VgoProject">
+    <settings-migrated>true</settings-migrated>
+  </component>
+</project>

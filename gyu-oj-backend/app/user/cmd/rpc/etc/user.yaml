@@ -1,0 +1,25 @@
+Name: user-rpc
+ListenOn: 0.0.0.0:1002
+Mode: dev
+
+Etcd:
+  Hosts:
+    - 127.0.0.1:2379
+  Key: user-rpc
+
+DB:
+  DataSource: root:2288.xzk@tcp(127.0.0.1:3306)/oj_db?charset=utf8mb4&parseTime=True&loc=Local
+
+Redis:
+  Host: 127.0.0.1:6379
+  Pass:
+  Type: node
+  Key: user-rpc
+
+JwtAuth:
+  AccessSecret: ae0536f9-6450-4606-8e13-5a19ed505da0
+  AccessExpire: 604800 # 一周
+
+Log:
+  ServiceName: user-rpc
+  Level: info

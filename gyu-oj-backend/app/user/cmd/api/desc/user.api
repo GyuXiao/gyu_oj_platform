@@ -1,0 +1,61 @@
+syntax = "v1"
+
+info(
+	title: "user module"
+	desc: "user module"
+	author: "GyuXiao"
+	version: "v1"
+)
+
+import (
+	"user/user.api"
+)
+
+// 用户注册和登陆
+
+@server(
+	prefix: gyu_api/v1
+	group: user
+)
+
+service user {
+	@doc "userRegister"
+	@handler register
+	post /user/register (RegisterReq) returns (RegisterResp)
+
+	@doc "userLogin"
+	@handler login
+	post /user/login (LoginReq) returns (LoginResp)
+}
+
+// 获取当前用户
+
+@server(
+	prefix: gyu_api/v1
+	group: user
+	jwt: Auth
+)
+service user {
+	@doc "get current user"
+	@handler current
+	get /user/current (CurrentUserReq) returns (CurrentUserResp)
+}
+
+// 用户退出
+
+@server(
+	prefix: gyu_api/v1
+	group: user
+	jwt: Auth
+)
+service user {
+	@doc "userLogout"
+	@handler logout
+	post /user/logout (LogoutReq) returns (LogoutResp)
+}
+
+// 在 api/desc 目录下执行
+// goctl api go -api user.api -dir ../  --style=goZero
+
+// 代码格式化
+// goctl api format --dir user.api

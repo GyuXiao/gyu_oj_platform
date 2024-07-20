@@ -1,0 +1,148 @@
+syntax = "v1"
+
+info(
+	title: "question service"
+	desc: "question service"
+	author: "GyuXiao"
+	version: "v1"
+)
+
+// Question 模块
+type JudgeCase {
+	Input  string `json:"input"`
+	Output string `json:"output"`
+}
+
+type JudgeConfig {
+	TimeLimit   int64 `json:"timeLimit"`
+	MemoryLimit int64 `json:"memoryLimit"`
+}
+
+type QuestionVO {
+	Id          string      `json:"id"`
+	Title       string      `json:"title"`
+	Content     string      `json:"content"`
+	Tags        []string    `json:"tags"`
+	Answers     []string    `json:"answers"`
+	SubmitNum   int64       `json:"submitNum"`
+	AcceptedNum int64       `json:"acceptedNum"`
+	JudgeConfig JudgeConfig `json:"judgeConfig"`
+	UserId      int64       `json:"userId"`
+	CreateTime  int64       `json:"createTime"`
+	UpdateTime  int64       `json:"updateTime"`
+}
+
+type (
+	CreateQuestionReq {
+		Authorization string      `header:"authorization"`
+		Title         string      `json:"title"`
+		Content       string      `json:"content"`
+		Tags          []string    `json:"tags"`
+		Answers       []string    `json:"answers"`
+		JudgeCases    []JudgeCase `json:"judgeCases"`
+		JudgeConfig   JudgeConfig `json:"judgeConfig"`
+	}
+	CreateQuestionResp {
+		Id string `json:"id"`
+	}
+)
+
+type (
+	UpdateQuestionReq {
+		Authorization string      `header:"authorization"`
+		Id            string      `json:"id"`
+		Title         string      `json:"title,optional"`
+		Content       string      `json:"content,optional"`
+		Tags          []string    `json:"tags,optional"`
+		Answers       []string    `json:"answers,optional"`
+		JudgeCases    []JudgeCase `json:"judgeCases,optional"`
+		JudgeConfig   *JudgeConfig `json:"judgeConfig,optional"`
+	}
+	UpdateQuestionResp {
+		IsUpdated bool `json:"isUpdated"`
+	}
+)
+
+type (
+	DeleteQuestionReq {
+		Authorization string `header:"authorization"`
+		Id            string `json:"id"`
+	}
+	DeleteQuestionResp {
+		IsDeleted bool `json:"isDeleted"`
+	}
+)
+
+type (
+	GetQuestionReq {
+		Id string `form:"id"`
+	}
+	GetQuestionResp {
+		Question QuestionVO `json:"question"`
+	}
+)
+
+type (
+	GetQuestionListReq {
+		Current   int64    `form:"current"`
+		PageSize  int64    `form:"pageSize"`
+		SortField string   `form:"sortField,optional"`
+		SortOrder string   `form:"sortOrder,optional"`
+		Title     string   `form:"title,optional"`
+		Tags      []string `form:"tags,optional"`
+	}
+	GetQuestionListResp {
+		QuestionList []QuestionVO `json:"questionList"`
+		Total        int64        `json:"total"`
+	}
+)
+
+// QuestionSubmit 模块
+type JudgeInfo {
+	Message string `json:"message"`
+	Time    int64  `json:"time"`
+	Memory  int64  `json:"memory"`
+}
+
+type QuestionSubmitVO {
+	Id         string    `json:"id"`
+	Language   string    `json:"language"`
+	SubmitCode string    `json:"submitCode"`
+	JudgeInfo  JudgeInfo `json:"judgeInfo"`
+	Status     int64     `json:"status"`
+	QuestionId string    `json:"questionId"`
+	UserId     int64     `json:"userId"`
+	CreateTime int64     `json:"createTime"`
+	UpdateTime int64     `json:"updateTime"`
+}
+
+type (
+	// 已登陆用户才能提交代码
+	CreateQuestionSubmitReq {
+		Authorization string `header:"authorization"`
+		Language      string `json:"language"`
+		SubmitCode    string `json:"submitCode"`
+		QuestionId    string `json:"questionId"`
+	}
+	CreateQuestionSubmitResp {
+		Id string `json:"id"`
+	}
+)
+
+type (
+	QueryQuestionSubmitReq {
+		Authorization string `header:"authorization"`
+		Current       int64  `form:"current"`
+		PageSize      int64  `form:"pageSize"`
+		SortField     string `form:"sortField,optional"`
+		SortOrder     string `form:"sortOrder,optional"`
+		Language      string `form:"language,optional"`
+		Status        int64  `form:"status,optional"`
+		QuestionId    string `form:"questionId,optional"`
+		UserId        int64  `form:"userId,optional"`
+	}
+	QueryQuestionSubmitResp {
+		QuestionSubmitList []QuestionSubmitVO `json:"questionSubmitList"`
+		TotalNum           int64             `json:"totalNum"`
+	}
+)

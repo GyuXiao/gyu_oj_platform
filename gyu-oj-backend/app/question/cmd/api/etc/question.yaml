@@ -1,0 +1,26 @@
+# 本文件不应该进入版本控制管理
+Name: question-api
+Host: 0.0.0.0
+Port: 2001
+
+#jwtAuth
+Auth:
+  AccessSecret: ae0536f9-6450-4606-8e13-5a19ed505da0
+  AccessExpire: 604800 # 一周
+
+Log:
+  ServiceName: question-api
+  Level: info
+
+# rpc service
+UserRpcConf:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: user-rpc
+
+QuestionRpcConf:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: question-rpc

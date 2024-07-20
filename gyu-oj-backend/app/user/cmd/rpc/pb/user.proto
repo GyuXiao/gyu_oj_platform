@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+option go_package = "./pb";
+
+package pb;
+
+// User 模块
+// model
+message User {
+  uint64 id = 1;
+  string username = 2;
+  string password = 3;
+  string avatarUrl = 4;
+  string email = 5;
+  string phone = 6;
+  uint64 userRole = 7;
+  uint64 isDelete = 8;
+  int64 createTime = 9;
+  int64 updateTime = 10;
+}
+
+// 用户注册
+message RegisterReq {
+  string username = 1;
+  string password = 2;
+  string confirmPassword = 3;
+}
+message RegisterResp {
+  string username = 1;
+}
+
+// 用户登录
+message LoginReq {
+  string username = 1;
+  string password = 2;
+}
+message LoginResp {
+  uint64 id = 1;
+  string username = 2;
+  string avatarUrl = 3;
+  uint64 userRole = 4;
+  string token = 5;
+  int64 tokenExpire = 6;
+}
+
+// 当前用户
+message CurrentUserReq {
+  string authToken = 1;
+}
+message CurrentUserResp {
+  uint64 id = 1;
+  string username = 2;
+  string avatarUrl = 3;
+  uint64 userRole = 4;
+  string token = 5;
+  int64 tokenExpire = 6;
+}
+
+// 用户退出
+message LogoutReq {
+  string authToken = 1;
+}
+message LogoutResp {
+  bool isLogouted = 1;
+}
+
+
+// user 服务
+
+service user {
+  rpc login(LoginReq) returns(LoginResp);
+  rpc register(RegisterReq) returns(RegisterResp);
+  rpc currentUser(CurrentUserReq) returns(CurrentUserResp);
+  rpc logout(LogoutReq) returns(LogoutResp);
+}
+
+// 在 rpc 目录下执行
+// goctl rpc protoc ./pb/user.proto --go_out=. --go-grpc_out=. --zrpc_out=. -m
