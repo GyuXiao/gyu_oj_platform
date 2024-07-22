@@ -2,5 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type LogoutReq = {};
+export type CreateQuestionResp = {
+    id: string;
+};
 

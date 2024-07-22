@@ -14,7 +14,7 @@ import (
 // 用户注册和登陆
 
 @server(
-	prefix: gyu_api/v1
+	prefix: gyu_oj/v1
 	group: user
 )
 
@@ -31,7 +31,7 @@ service user {
 // 获取当前用户
 
 @server(
-	prefix: gyu_api/v1
+	prefix: gyu_oj/v1
 	group: user
 	jwt: Auth
 )
@@ -44,7 +44,7 @@ service user {
 // 用户退出
 
 @server(
-	prefix: gyu_api/v1
+	prefix: gyu_oj/v1
 	group: user
 	jwt: Auth
 )

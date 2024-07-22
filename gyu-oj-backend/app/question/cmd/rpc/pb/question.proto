@@ -31,7 +31,7 @@ message QuestionVO {
   string title = 2;
   string content = 3;
   repeated string tags = 4;
-  repeated string answers = 5;
+  string answer = 5;
   int64 submitNum = 6;
   int64 acceptedNum  = 7;
   JudgeConfig judgeConfig = 8;
@@ -45,7 +45,7 @@ message QuestionAddReq {
   string title = 1;
   string content = 2;
   repeated string tags = 3;
-  repeated string answers = 4;
+  string answer = 4;
   repeated JudgeCase judgeCases = 5;
   JudgeConfig judgeConfig = 6;
   int64 userId = 7;
@@ -60,7 +60,7 @@ message QuestionUpdateReq {
   string title = 2;
   string content = 3;
   repeated string tags = 4;
-  repeated string answers = 5;
+  string answer = 5;
   repeated JudgeCase judgeCases = 6;
   JudgeConfig judgeConfig = 7;
 }

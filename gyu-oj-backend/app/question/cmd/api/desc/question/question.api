@@ -23,7 +23,7 @@ type QuestionVO {
 	Title       string      `json:"title"`
 	Content     string      `json:"content"`
 	Tags        []string    `json:"tags"`
-	Answers     []string    `json:"answers"`
+	Answer      string      `json:"answer"`
 	SubmitNum   int64       `json:"submitNum"`
 	AcceptedNum int64       `json:"acceptedNum"`
 	JudgeConfig JudgeConfig `json:"judgeConfig"`
@@ -38,7 +38,7 @@ type (
 		Title         string      `json:"title"`
 		Content       string      `json:"content"`
 		Tags          []string    `json:"tags"`
-		Answers       []string    `json:"answers"`
+		Answer        string      `json:"answer"`
 		JudgeCases    []JudgeCase `json:"judgeCases"`
 		JudgeConfig   JudgeConfig `json:"judgeConfig"`
 	}
@@ -49,13 +49,13 @@ type (
 
 type (
 	UpdateQuestionReq {
-		Authorization string      `header:"authorization"`
-		Id            string      `json:"id"`
-		Title         string      `json:"title,optional"`
-		Content       string      `json:"content,optional"`
-		Tags          []string    `json:"tags,optional"`
-		Answers       []string    `json:"answers,optional"`
-		JudgeCases    []JudgeCase `json:"judgeCases,optional"`
+		Authorization string       `header:"authorization"`
+		Id            string       `json:"id"`
+		Title         string       `json:"title,optional"`
+		Content       string       `json:"content,optional"`
+		Tags          []string     `json:"tags,optional"`
+		Answer        string       `json:"answer,optional"`
+		JudgeCases    []JudgeCase  `json:"judgeCases,optional"`
 		JudgeConfig   *JudgeConfig `json:"judgeConfig,optional"`
 	}
 	UpdateQuestionResp {
@@ -143,6 +143,6 @@ type (
 	}
 	QueryQuestionSubmitResp {
 		QuestionSubmitList []QuestionSubmitVO `json:"questionSubmitList"`
-		TotalNum           int64             `json:"totalNum"`
+		TotalNum           int64              `json:"totalNum"`
 	}
 )

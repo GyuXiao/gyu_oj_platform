@@ -36,6 +36,7 @@ func (l *AddQuestionLogic) AddQuestion(in *pb.QuestionAddReq) (*pb.QuestionAddRe
 		Title:   in.Title,
 		Content: in.Content,
 		UserID:  in.UserId,
+		Answer:  in.Answer,
 	}
 	// 补充额外的非空参数
 	l.fixExtraFields(question, in)
@@ -51,14 +52,6 @@ func (l *AddQuestionLogic) AddQuestion(in *pb.QuestionAddReq) (*pb.QuestionAddRe
 func (l *AddQuestionLogic) fixExtraFields(question *entity.Question, in *pb.QuestionAddReq) {
 	if len(in.Tags) > 0 {
 		question.Tags = strings.Join(in.Tags, ",")
-	}
-
-	if len(in.Answers) > 0 {
-		answers, err := json.Marshal(in.Answers)
-		if err != nil {
-			logc.Infof(l.ctx, xerr.GetMsgByCode(xerr.JSONMarshalError))
-		}
-		question.Answer = string(answers)
 	}
 
 	if len(in.JudgeCases) > 0 {

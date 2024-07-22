@@ -16,7 +16,7 @@ type QuestionVO struct {
 	Title       string      `json:"title"`
 	Content     string      `json:"content"`
 	Tags        []string    `json:"tags"`
-	Answers     []string    `json:"answers"`
+	Answer      string      `json:"answer"`
 	SubmitNum   int64       `json:"submitNum"`
 	AcceptedNum int64       `json:"acceptedNum"`
 	JudgeConfig JudgeConfig `json:"judgeConfig"`
@@ -30,7 +30,7 @@ type CreateQuestionReq struct {
 	Title         string      `json:"title"`
 	Content       string      `json:"content"`
 	Tags          []string    `json:"tags"`
-	Answers       []string    `json:"answers"`
+	Answer        string      `json:"answer"`
 	JudgeCases    []JudgeCase `json:"judgeCases"`
 	JudgeConfig   JudgeConfig `json:"judgeConfig"`
 }
@@ -45,7 +45,7 @@ type UpdateQuestionReq struct {
 	Title         string       `json:"title,optional"`
 	Content       string       `json:"content,optional"`
 	Tags          []string     `json:"tags,optional"`
-	Answers       []string     `json:"answers,optional"`
+	Answer        string       `json:"answer,optional"`
 	JudgeCases    []JudgeCase  `json:"judgeCases,optional"`
 	JudgeConfig   *JudgeConfig `json:"judgeConfig,optional"`
 }

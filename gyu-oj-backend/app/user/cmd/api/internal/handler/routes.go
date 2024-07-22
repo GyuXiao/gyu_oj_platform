@@ -24,7 +24,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: user.LoginHandler(serverCtx),
 			},
 		},
-		rest.WithPrefix("/gyu_api/v1"),
+		rest.WithPrefix("/gyu_oj/v1"),
 	)
 
 	server.AddRoutes(
@@ -36,7 +36,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 		},
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
-		rest.WithPrefix("/gyu_api/v1"),
+		rest.WithPrefix("/gyu_oj/v1"),
 	)
 
 	server.AddRoutes(
@@ -48,6 +48,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 		},
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
-		rest.WithPrefix("/gyu_api/v1"),
+		rest.WithPrefix("/gyu_oj/v1"),
 	)
 }

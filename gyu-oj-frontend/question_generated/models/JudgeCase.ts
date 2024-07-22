@@ -2,5 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type LogoutReq = {};
+export type JudgeCase = {
+    input: string;
+    output: string;
+};
 

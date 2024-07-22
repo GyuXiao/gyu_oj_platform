@@ -3,8 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { LoginReq } from "../models/LoginReq";
-import type { LogoutReq } from "../models/LogoutReq";
-import type { LogoutResp } from "../models/LogoutResp";
 import type { RegisterReq } from "../models/RegisterReq";
 import type { CancelablePromise } from "../core/CancelablePromise";
 import { OpenAPI } from "../core/OpenAPI";
@@ -12,6 +10,7 @@ import { request as __request } from "../core/request";
 import type {
   BaseCurrentResponse,
   BaseUserLoginResponse,
+  BaseUserLogoutResponse,
   BaseUserRegisterResponse,
 } from "../models/BaseResponse";
 
@@ -24,7 +23,7 @@ export class UserService {
   public static current(): CancelablePromise<BaseCurrentResponse | any> {
     return __request(OpenAPI, {
       method: "GET",
-      url: "/gyu_api/v1/user/current",
+      url: "/gyu_oj/v1/user/current",
     });
   }
 
@@ -39,7 +38,7 @@ export class UserService {
   ): CancelablePromise<BaseUserLoginResponse | any> {
     return __request(OpenAPI, {
       method: "POST",
-      url: "/gyu_api/v1/user/login",
+      url: "/gyu_oj/v1/user/login",
       body: body,
     });
   }
@@ -51,17 +50,10 @@ export class UserService {
    * @returns LogoutResp A successful response.
    * @throws ApiError
    */
-  public static logout(
-    authorization: string,
-    body: LogoutReq
-  ): CancelablePromise<LogoutResp> {
+  public static logout(): CancelablePromise<BaseUserLogoutResponse | any> {
     return __request(OpenAPI, {
       method: "POST",
-      url: "/gyu_api/v1/user/logout",
-      headers: {
-        authorization: authorization,
-      },
-      body: body,
+      url: "/gyu_oj/v1/user/logout",
     });
   }
 
@@ -76,7 +68,7 @@ export class UserService {
   ): CancelablePromise<BaseUserRegisterResponse | any> {
     return __request(OpenAPI, {
       method: "POST",
-      url: "/gyu_api/v1/user/register",
+      url: "/gyu_oj/v1/user/register",
       body: body,
     });
   }

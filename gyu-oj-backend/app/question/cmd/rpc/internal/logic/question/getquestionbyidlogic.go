@@ -64,10 +64,7 @@ func (l *GetQuestionByIdLogic) fixExtraFields(question *entity.Question, questio
 
 	var err error
 	if question.Answer != "" {
-		err = json.Unmarshal([]byte(question.Answer), &questionVO.Answers)
-		if err != nil {
-			logc.Infof(l.ctx, xerr.GetMsgByCode(xerr.JSONUnmarshalError))
-		}
+		questionVO.Answer = question.Answer
 	}
 
 	if question.JudgeConfig != "" {

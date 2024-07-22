@@ -11,6 +11,7 @@ export type {
   BaseCurrentResponse,
   BaseUserLoginResponse,
   BaseUserRegisterResponse,
+  BaseUserLogoutResponse,
 } from "./models/BaseResponse";
 export type { CurrentUserReq } from "./models/CurrentUserReq";
 export type { CurrentUserResp } from "./models/CurrentUserResp";

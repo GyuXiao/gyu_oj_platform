@@ -33,7 +33,6 @@
 }
 
 #basicLayout .footer {
-  background: azure;
   padding: 16px;
   position: sticky;
   bottom: 0;

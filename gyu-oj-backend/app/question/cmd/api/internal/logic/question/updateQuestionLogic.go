@@ -60,7 +60,7 @@ func (l *UpdateQuestionLogic) UpdateQuestion(req *types.UpdateQuestionReq) (*typ
 		Title:       req.Title,
 		Content:     req.Content,
 		Tags:        req.Tags,
-		Answers:     req.Answers,
+		Answer:      req.Answer,
 		JudgeCases:  judgeCases,
 		JudgeConfig: judgeConfig,
 	})

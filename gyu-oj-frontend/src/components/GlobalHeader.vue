@@ -23,7 +23,26 @@
     </a-col>
     <a-col flex="100px">
       <div>
-        {{ store.state.user?.loginUser?.username ?? "未登录" }}
+        <template
+          v-if="
+            store.state.user &&
+            store.state.user.loginUser &&
+            store.state.user.loginUser.username &&
+            store.state.user.loginUser.username !== '未登录'
+          "
+        >
+          <a-dropdown @select="handleSelect">
+            <a-button type="text"
+              >{{ store.state.user.loginUser.username }}
+            </a-button>
+            <template #content>
+              <a-doption :value="{ value: 'logout' }">退出登录</a-doption>
+            </template>
+          </a-dropdown>
+        </template>
+        <template v-else>
+          <a-button type="text" @click="toLoginPage">未登录</a-button>
+        </template>
       </div>
     </a-col>
   </a-row>
@@ -35,9 +54,30 @@ import { useRouter } from "vue-router";
 import { computed, ref } from "vue";
 import { useStore } from "vuex";
 import checkAccess from "@/access/checkAccess";
+import { UserService } from "../../generated";
+import accessEnum from "@/access/accessEnum";
 
 const router = useRouter();
 const store = useStore();
+
+const handleSelect = (v) => {
+  console.log(v);
+  // 退出登录
+  if (v.value === "logout") {
+    UserService.logout();
+    localStorage.removeItem("loginUser");
+    toLoginPage();
+  }
+};
+
+/**
+ * 跳转到登录界面
+ */
+const toLoginPage = () => {
+  router.push({
+    path: `/user/login`,
+  });
+};
 
 // 默认主页
 const selectedKey = ref(["/"]);

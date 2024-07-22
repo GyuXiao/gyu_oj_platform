@@ -60,12 +60,8 @@ func (l *UpdateQuestionLogic) fixExtraFields(question *entity.Question, in *pb.Q
 		question.Content = in.Content
 	}
 
-	if len(in.Answers) > 0 {
-		answers, err := json.Marshal(in.Answers)
-		if err != nil {
-			logc.Infof(l.ctx, xerr.GetMsgByCode(xerr.JSONMarshalError))
-		}
-		question.Answer = string(answers)
+	if in.Answer != "" {
+		question.Answer = in.Answer
 	}
 
 	if len(in.JudgeCases) > 0 {

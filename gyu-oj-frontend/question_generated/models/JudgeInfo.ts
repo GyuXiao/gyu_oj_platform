@@ -2,5 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type LogoutReq = {};
+export type JudgeInfo = {
+    message: string;
+    time: number;
+    memory: number;
+};
 

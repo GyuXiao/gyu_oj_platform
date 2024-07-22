@@ -2,5 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type LogoutReq = {};
+import type { QuestionVO } from './QuestionVO';
+export type GetQuestionResp = {
+    question: QuestionVO;
+};
 

@@ -42,8 +42,11 @@ func (l *CreateQuestionLogic) CreateQuestion(req *types.CreateQuestionReq) (*typ
 	if req.Title == "" || req.Content == "" {
 		return nil, xerr.NewErrCodeMsg(xerr.ParamFormatError, "题目的标题或内容不能为空")
 	}
-	if len(req.Tags) == 0 || len(req.Answers) == 0 {
-		return nil, xerr.NewErrCodeMsg(xerr.ParamFormatError, "题目需要至少一个标签或答案")
+	if req.Answer == "" {
+		return nil, xerr.NewErrCodeMsg(xerr.ParamFormatError, "管理员创建的题目不能没有答案")
+	}
+	if len(req.Tags) == 0 {
+		return nil, xerr.NewErrCodeMsg(xerr.ParamFormatError, "题目需要至少一个标签")
 	}
 	if len(req.JudgeCases) == 0 {
 		return nil, xerr.NewErrCodeMsg(xerr.ParamFormatError, "题目需要至少一个测试用例")
@@ -66,7 +69,7 @@ func (l *CreateQuestionLogic) CreateQuestion(req *types.CreateQuestionReq) (*typ
 		Title:       req.Title,
 		Content:     req.Content,
 		Tags:        req.Tags,
-		Answers:     req.Answers,
+		Answer:      req.Answer,
 		JudgeCases:  judgeCases,
 		JudgeConfig: judgeConfig,
 		UserId:      int64(currentUser.Id),
