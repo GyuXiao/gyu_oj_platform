@@ -22,17 +22,16 @@
 }
 
 #basicLayout .header {
-  margin-bottom: 16px;
   box-shadow: #eee 1px 1px 5px;
 }
 
 #basicLayout .content {
   background: antiquewhite;
   padding: 20px;
-  margin-bottom: 16px;
 }
 
 #basicLayout .footer {
+  background: #efefef;
   padding: 16px;
   position: sticky;
   bottom: 0;

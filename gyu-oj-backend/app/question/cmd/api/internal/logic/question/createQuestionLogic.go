@@ -48,12 +48,12 @@ func (l *CreateQuestionLogic) CreateQuestion(req *types.CreateQuestionReq) (*typ
 	if len(req.Tags) == 0 {
 		return nil, xerr.NewErrCodeMsg(xerr.ParamFormatError, "题目需要至少一个标签")
 	}
-	if len(req.JudgeCases) == 0 {
+	if len(req.JudgeCase) == 0 {
 		return nil, xerr.NewErrCodeMsg(xerr.ParamFormatError, "题目需要至少一个测试用例")
 	}
 
 	judgeCases := []*question.JudgeCase{}
-	err := copier.Copy(&judgeCases, req.JudgeCases)
+	err := copier.Copy(&judgeCases, req.JudgeCase)
 	if err != nil {
 		logc.Infof(l.ctx, "judgeCases 转换错误: %v\n", err)
 	}

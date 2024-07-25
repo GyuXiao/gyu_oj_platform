@@ -100,6 +100,13 @@ func (l *ListQuestionByPageLogic) fixExtraFields(question *entity.Question, ques
 			logc.Infof(l.ctx, xerr.GetMsgByCode(xerr.JSONUnmarshalError))
 		}
 	}
+
+	if question.JudgeCases != "" {
+		err = json.Unmarshal([]byte(question.JudgeCases), &questionVO.JudgeCase)
+		if err != nil {
+			logc.Infof(l.ctx, xerr.GetMsgByCode(xerr.JSONUnmarshalError))
+		}
+	}
 }
 
 func (l *ListQuestionByPageLogic) getRegexpStrings(tags []string) []string {

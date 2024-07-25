@@ -2,8 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { QuestionVO } from './QuestionVO';
+import type { QuestionVO } from "./QuestionVO";
+
 export type GetQuestionResp = {
-    question: QuestionVO;
+  question: QuestionVO;
 };
 

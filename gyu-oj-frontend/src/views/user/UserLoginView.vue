@@ -81,7 +81,7 @@ const handleSubmit = async () => {
       replace: true,
     });
   } else {
-    message.error("登陆失败" + res.msg);
+    message.error("登陆失败 " + res.msg);
   }
 };
 </script>

@@ -1,7 +1,7 @@
 import { StoreOptions } from "vuex";
 import ACCESS_ENUM from "@/access/accessEnum";
 import { UserService } from "../../generated";
-import accessEnum from "@/access/accessEnum";
+import message from "@arco-design/web-vue/es/message";
 
 /**
  * 用户模块
@@ -11,9 +11,7 @@ export default {
   // 定义已登陆用户信息
   state: () => ({
     loginUser: {
-      id: 0,
       username: "未登录",
-      userRole: accessEnum.NOT_LOGIN,
     },
   }),
   // 定义远程获取用户信息的方法
@@ -28,7 +26,7 @@ export default {
           ...state.loginUser,
           userRole: ACCESS_ENUM.NOT_LOGIN,
         });
-        // message.error("获取当前登陆用户错误: " + res.msg);
+        message.error("当前用户未登录，请重新登陆");
       }
     },
   },
@@ -37,7 +35,6 @@ export default {
     updateUser(state, payload) {
       state.loginUser = payload;
       console.log("此时的 state.loginUser", state.loginUser);
-      localStorage.setItem("loginUser", JSON.stringify(payload));
     },
   },
 } as StoreOptions<any>;

@@ -35,9 +35,10 @@ message QuestionVO {
   int64 submitNum = 6;
   int64 acceptedNum  = 7;
   JudgeConfig judgeConfig = 8;
-  int64 userId = 9;
-  int64 createTime = 10;
-  int64 updateTime = 11;
+  repeated JudgeCase judgeCase = 9;
+  int64 userId = 10;
+  int64 createTime = 11;
+  int64 updateTime = 12;
 }
 
 // 添加题目

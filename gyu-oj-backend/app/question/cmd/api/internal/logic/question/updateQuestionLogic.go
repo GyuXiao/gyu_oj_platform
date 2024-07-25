@@ -39,8 +39,8 @@ func (l *UpdateQuestionLogic) UpdateQuestion(req *types.UpdateQuestionReq) (*typ
 	}
 
 	judgeCases := []*question.JudgeCase{}
-	if len(req.JudgeCases) > 0 {
-		err := copier.Copy(&judgeCases, req.JudgeCases)
+	if len(req.JudgeCase) > 0 {
+		err := copier.Copy(&judgeCases, req.JudgeCase)
 		if err != nil {
 			logc.Infof(l.ctx, "judgeCases 转换错误: %v\n", err)
 		}

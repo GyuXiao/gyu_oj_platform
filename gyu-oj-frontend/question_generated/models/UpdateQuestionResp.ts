@@ -3,6 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export type UpdateQuestionResp = {
-    isUpdated: boolean;
+  isUpdated: boolean;
 };
 

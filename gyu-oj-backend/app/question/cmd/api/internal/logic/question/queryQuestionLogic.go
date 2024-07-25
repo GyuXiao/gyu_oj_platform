@@ -2,10 +2,12 @@ package question
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/zeromicro/go-zero/core/logc"
 	"gyu-oj-backend/app/question/cmd/api/internal/svc"
 	"gyu-oj-backend/app/question/cmd/api/internal/types"
 	"gyu-oj-backend/app/question/cmd/rpc/client/question"
+	"gyu-oj-backend/app/question/cmd/rpc/pb"
 	"gyu-oj-backend/common/xerr"
 
 	"github.com/jinzhu/copier"
@@ -44,6 +46,27 @@ func (l *QueryQuestionLogic) QueryQuestion(req *types.GetQuestionReq) (*types.Ge
 		if err != nil {
 			logc.Infof(l.ctx, "questionVO 数据转换错误: %v\n", err)
 		}
+		l.fixExtraFields(&questionVO, resp)
 	}
 	return &types.GetQuestionResp{Question: questionVO}, nil
+}
+
+func (l *QueryQuestionLogic) fixExtraFields(questionVO *types.QuestionVO, resp *pb.QuestionGetByIdResp) {
+	judgeConfigBytes, err := json.Marshal(resp.QuestionVO.JudgeConfig)
+	if err != nil {
+		logc.Infof(l.ctx, "judgeConfig 对象转换为 byte 数组错误: %v\n", xerr.NewErrCode(xerr.JSONMarshalError))
+	}
+	if string(judgeConfigBytes) == "null" {
+		judgeConfigBytes = []byte("")
+	}
+	questionVO.JudgeConfig = string(judgeConfigBytes)
+
+	judgeCaseBytes, err := json.Marshal(resp.QuestionVO.JudgeCase)
+	if err != nil {
+		logc.Infof(l.ctx, "judgeCase 对象转换为 byte 数组错误: %v\n", xerr.NewErrCode(xerr.JSONMarshalError))
+	}
+	if string(judgeCaseBytes) == "null" {
+		judgeCaseBytes = []byte("")
+	}
+	questionVO.JudgeCase = string(judgeCaseBytes)
 }

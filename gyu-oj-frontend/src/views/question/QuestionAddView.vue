@@ -1,5 +1,5 @@
 <template>
-  <div id="addQuestionView">
+  <div id="QuestionAddView">
     <h2>创建题目</h2>
     <a-form
       style="max-width: 1000px; margin: 0 auto"
@@ -51,14 +51,17 @@
         :merge-props="false"
       >
         <a-form-item
-          v-for="(judgeCaseItem, index) of form.judgeCases"
+          v-for="(judgeCaseItem, index) of form.judgeCase"
           :key="index"
           no-style
         >
-          <a-space direction="vertical" style="min-width: 640px">
+          <a-space
+            direction="vertical"
+            style="min-width: 640px; margin-bottom: 20px"
+          >
             <a-form-item
               :field="`form.judgeCases[${index}].input`"
-              :label="`输入样例-${index}`"
+              :label="`输入样例-${index + 1}`"
               :key="index"
             >
               <a-input
@@ -68,7 +71,7 @@
             </a-form-item>
             <a-form-item
               :field="`form.judgeCases[${index}].output`"
-              :label="`输出样例-${index}`"
+              :label="`输出样例-${index + 1}`"
               :key="index"
             >
               <a-input
@@ -100,8 +103,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import MdEditor from "@/components/MdEditor.vue";
+import { QuestionService } from "../../../question_generated";
+import message from "@arco-design/web-vue/es/message";
+import { useRoute } from "vue-router";
 
 let form = ref({
   title: "",
@@ -112,7 +118,7 @@ let form = ref({
     timeLimit: 1000,
     memoryLimit: 1000,
   },
-  judgeCases: [
+  judgeCase: [
     {
       input: "",
       output: "",
@@ -120,15 +126,75 @@ let form = ref({
   ],
 });
 
-const doSubmit = () => {
+const route = useRoute();
+// 如果页面地址包含 update，视为更新页面
+const updatePage = route.path.includes("update");
+const loadData = async () => {
+  const id = route.query.id;
+  if (!id) {
+    return;
+  }
+  const res = await QuestionService.queryQuestion(id as string);
+  if (res.code === 200) {
+    form.value = res.data.question;
+    console.log("此时 form.value 的值为", form.value);
+    // json 转为 js 对象
+    if (!form.value.judgeCase) {
+      form.value.judgeCase = [
+        {
+          input: "",
+          output: "",
+        },
+      ];
+    } else {
+      form.value.judgeCase = JSON.parse(form.value.judgeCase as any);
+    }
+    if (!form.value.judgeConfig) {
+      form.value.judgeConfig = {
+        memoryLimit: 1000,
+        timeLimit: 1000,
+      };
+    } else {
+      form.value.judgeConfig = JSON.parse(form.value.judgeConfig as any);
+    }
+    if (!form.value.tags) {
+      form.value.tags = [];
+    } else {
+      form.value.tags = JSON.parse(form.value.tags as any);
+    }
+  } else {
+    message.error("加载失败，" + res.msg);
+  }
+};
+
+onMounted(() => {
+  loadData();
+});
+
+const doSubmit = async () => {
   console.log("表单信息包括：", form);
+  if (updatePage) {
+    const res = await QuestionService.updateQuestion(form.value);
+    if (res.code === 200) {
+      message.success("更新成功");
+    } else {
+      message.error("更新失败，" + res.msg);
+    }
+  } else {
+    const res = await QuestionService.createQuestion(form.value);
+    if (res.code === 200) {
+      message.success("题目创建成功");
+    } else {
+      message.error("题目创建失败，" + res.msg);
+    }
+  }
 };
 
 /**
  * 新增判题样例
  */
 const handleAdd = () => {
-  form.value.judgeCases.push({
+  form.value.judgeCase.push({
     input: "",
     output: "",
   });
@@ -138,7 +204,7 @@ const handleAdd = () => {
  * 删除判题样例
  */
 const handleDelete = (index: number) => {
-  form.value.judgeCases.splice(index, 1);
+  form.value.judgeCase.splice(index, 1);
 };
 
 const onContentChange = (value: string) => {
@@ -151,7 +217,7 @@ const onAnswerChange = (value: string) => {
 </script>
 
 <style scoped>
-#addQuestionView {
+#QuestionAddView {
 }
 
 .questionContent {

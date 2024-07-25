@@ -55,17 +55,14 @@ import { computed, ref } from "vue";
 import { useStore } from "vuex";
 import checkAccess from "@/access/checkAccess";
 import { UserService } from "../../generated";
-import accessEnum from "@/access/accessEnum";
 
 const router = useRouter();
 const store = useStore();
 
-const handleSelect = (v) => {
-  console.log(v);
+const handleSelect = (v: any) => {
   // 退出登录
   if (v.value === "logout") {
     UserService.logout();
-    localStorage.removeItem("loginUser");
     toLoginPage();
   }
 };

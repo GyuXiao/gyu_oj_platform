@@ -3,56 +3,48 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { CreateQuestionReq } from "../models/CreateQuestionReq";
-import type { CreateQuestionResp } from "../models/CreateQuestionResp";
 import type { DeleteQuestionReq } from "../models/DeleteQuestionReq";
-import type { DeleteQuestionResp } from "../models/DeleteQuestionResp";
-import type { GetQuestionListResp } from "../models/GetQuestionListResp";
 import type { GetQuestionResp } from "../models/GetQuestionResp";
 import type { UpdateQuestionReq } from "../models/UpdateQuestionReq";
 import type { UpdateQuestionResp } from "../models/UpdateQuestionResp";
 import type { CancelablePromise } from "../core/CancelablePromise";
 import { OpenAPI } from "../core/OpenAPI";
 import { request as __request } from "../core/request";
+import {
+  BaseCreateQuestionResponse,
+  BaseDeleteQuestionResponse,
+  BaseQueryQuestionListResponse, BaseQueryQuestionResponse, BaseUpdateQuestionResponse
+} from "../models/BaseQuestionResp";
 
 export class QuestionService {
   /**
    * admin create question
-   * @param authorization
    * @param body
    * @returns CreateQuestionResp A successful response.
    * @throws ApiError
    */
   public static createQuestion(
-    authorization: string,
     body: CreateQuestionReq
-  ): CancelablePromise<CreateQuestionResp> {
+  ): CancelablePromise<BaseCreateQuestionResponse | any> {
     return __request(OpenAPI, {
       method: "POST",
       url: "/gyu_oj/v1/question/add",
-      headers: {
-        authorization: authorization,
-      },
       body: body,
     });
   }
 
   /**
    * admin delete question
-   * @param authorization
    * @param body
    * @returns DeleteQuestionResp A successful response.
    * @throws ApiError
    */
   public static deleteQuestion(
-    authorization: string,
     body: DeleteQuestionReq
-  ): CancelablePromise<DeleteQuestionResp> {
+  ): CancelablePromise<BaseDeleteQuestionResponse | any> {
     return __request(OpenAPI, {
       method: "POST",
       url: "/gyu_oj/v1/question/delete",
-      headers: {
-        authorization: authorization,
-      },
       body: body,
     });
   }
@@ -75,7 +67,7 @@ export class QuestionService {
     sortOrder?: string,
     title?: string,
     tags?: string
-  ): CancelablePromise<GetQuestionListResp> {
+  ): CancelablePromise<BaseQueryQuestionListResponse | any> {
     return __request(OpenAPI, {
       method: "GET",
       url: "/gyu_oj/v1/question/list",
@@ -96,7 +88,7 @@ export class QuestionService {
    * @returns GetQuestionResp A successful response.
    * @throws ApiError
    */
-  public static queryQuestion(id: string): CancelablePromise<GetQuestionResp> {
+  public static queryQuestion(id: string): CancelablePromise<BaseQueryQuestionResponse | any> {
     return __request(OpenAPI, {
       method: "GET",
       url: "/gyu_oj/v1/question/query",
@@ -114,15 +106,11 @@ export class QuestionService {
    * @throws ApiError
    */
   public static updateQuestion(
-    authorization: string,
     body: UpdateQuestionReq
-  ): CancelablePromise<UpdateQuestionResp> {
+  ): CancelablePromise<BaseUpdateQuestionResponse | any> {
     return __request(OpenAPI, {
       method: "POST",
       url: "/gyu_oj/v1/question/update",
-      headers: {
-        authorization: authorization,
-      },
       body: body,
     });
   }

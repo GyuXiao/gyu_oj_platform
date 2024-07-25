@@ -12,17 +12,18 @@ type JudgeConfig struct {
 }
 
 type QuestionVO struct {
-	Id          string      `json:"id"`
-	Title       string      `json:"title"`
-	Content     string      `json:"content"`
-	Tags        []string    `json:"tags"`
-	Answer      string      `json:"answer"`
-	SubmitNum   int64       `json:"submitNum"`
-	AcceptedNum int64       `json:"acceptedNum"`
-	JudgeConfig JudgeConfig `json:"judgeConfig"`
-	UserId      int64       `json:"userId"`
-	CreateTime  int64       `json:"createTime"`
-	UpdateTime  int64       `json:"updateTime"`
+	Id          string   `json:"id"`
+	Title       string   `json:"title"`
+	Content     string   `json:"content"`
+	Tags        []string `json:"tags"`
+	Answer      string   `json:"answer"`
+	SubmitNum   int64    `json:"submitNum"`
+	AcceptedNum int64    `json:"acceptedNum"`
+	JudgeConfig string   `json:"judgeConfig"`
+	JudgeCase   string   `json:"judgeCase"`
+	UserId      int64    `json:"userId"`
+	CreateTime  int64    `json:"createTime"`
+	UpdateTime  int64    `json:"updateTime"`
 }
 
 type CreateQuestionReq struct {
@@ -31,7 +32,7 @@ type CreateQuestionReq struct {
 	Content       string      `json:"content"`
 	Tags          []string    `json:"tags"`
 	Answer        string      `json:"answer"`
-	JudgeCases    []JudgeCase `json:"judgeCases"`
+	JudgeCase     []JudgeCase `json:"judgeCase"`
 	JudgeConfig   JudgeConfig `json:"judgeConfig"`
 }
 
@@ -46,7 +47,7 @@ type UpdateQuestionReq struct {
 	Content       string       `json:"content,optional"`
 	Tags          []string     `json:"tags,optional"`
 	Answer        string       `json:"answer,optional"`
-	JudgeCases    []JudgeCase  `json:"judgeCases,optional"`
+	JudgeCase     []JudgeCase  `json:"judgeCase,optional"`
 	JudgeConfig   *JudgeConfig `json:"judgeConfig,optional"`
 }
 
