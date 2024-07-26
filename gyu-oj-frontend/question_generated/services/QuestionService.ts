@@ -53,20 +53,20 @@ export class QuestionService {
    * query question List
    * @param current
    * @param pageSize
-   * @param sortField
-   * @param sortOrder
    * @param title
    * @param tags
+   * @param sortField
+   * @param sortOrder
    * @returns GetQuestionListResp A successful response.
    * @throws ApiError
    */
   public static queryQuestionList(
     current: number,
     pageSize: number,
+    title?: string,
+    tags?: Array<string>,
     sortField?: string,
     sortOrder?: string,
-    title?: string,
-    tags?: string
   ): CancelablePromise<BaseQueryQuestionListResponse | any> {
     return __request(OpenAPI, {
       method: "GET",

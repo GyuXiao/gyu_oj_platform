@@ -6,9 +6,10 @@
       :pagination="{
         showTotal: true,
         pageSize: searchParams.pageSize,
-        current: searchParams.pageNum,
+        current: searchParams.current,
         total,
       }"
+      @page-change="onPageChange"
     >
       <template #optional="{ record }">
         <a-space>
@@ -50,13 +51,16 @@ const doUpdate = (question: QuestionVO) => {
 
 const searchParams = ref({
   pageSize: 10,
-  pageNum: 1,
+  current: 1,
 });
 const dataList = ref([]);
 const total = ref(0);
 
 const loadData = async () => {
-  const res = await QuestionService.queryQuestionList(1, 10);
+  const res = await QuestionService.queryQuestionList(
+    searchParams.value.current,
+    searchParams.value.pageSize
+  );
   if (res.code === 200) {
     dataList.value = res.data.questionList;
     total.value = res.data.total;
@@ -68,6 +72,20 @@ const loadData = async () => {
 onMounted(() => {
   loadData();
 });
+
+/**
+ * 监听列表参数的变化，然后加载最新的数据
+ */
+watchEffect(() => {
+  loadData();
+});
+
+const onPageChange = (page: number) => {
+  searchParams.value = {
+    ...searchParams.value,
+    current: page,
+  };
+};
 
 const columns = [
   {
@@ -135,7 +153,7 @@ const columns = [
 ];
 </script>
 
-<style>
+<style scoped>
 #QuestionManageView {
 }
 </style>

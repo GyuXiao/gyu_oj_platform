@@ -3,8 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export type CreateQuestionSubmitReq = {
-    language: string;
-    submitCode: string;
-    questionId: string;
+  language: string;
+  submitCode: string;
+  questionId: string;
 };
 

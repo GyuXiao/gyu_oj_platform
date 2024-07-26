@@ -8,6 +8,7 @@ import type { QueryQuestionSubmitResp } from "../models/QueryQuestionSubmitResp"
 import type { CancelablePromise } from "../core/CancelablePromise";
 import { OpenAPI } from "../core/OpenAPI";
 import { request as __request } from "../core/request";
+import { BaseCreateQuestionSubmitResponse } from "../models/BaseQuestionResp";
 
 export class QuestionSubmitService {
   /**
@@ -18,15 +19,11 @@ export class QuestionSubmitService {
    * @throws ApiError
    */
   public static createQuestionSubmit(
-    authorization: string,
     body: CreateQuestionSubmitReq
-  ): CancelablePromise<CreateQuestionSubmitResp> {
+  ): CancelablePromise<BaseCreateQuestionSubmitResponse | any> {
     return __request(OpenAPI, {
       method: "POST",
       url: "/gyu_oj/v1/questionSubmit/create",
-      headers: {
-        "authorization": authorization
-      },
       body: body
     });
   }

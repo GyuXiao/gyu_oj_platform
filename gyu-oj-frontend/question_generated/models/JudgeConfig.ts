@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type JudgeConfig = {
-    timeLimit: number;
-    memoryLimit: number;
+  timeLimit?: number;
+  memoryLimit?: number;
 };
 

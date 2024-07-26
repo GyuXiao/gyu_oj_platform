@@ -43,8 +43,8 @@ func HttpResult(r *http.Request, w http.ResponseWriter, resp interface{}, err er
 
 func ParamErrorResult(r *http.Request, w http.ResponseWriter, err error) {
 	logc.Errorf(context.Background(), "HTTP 请求参数错误: %v", err.Error())
-	errMsg := fmt.Sprintf("%s: %v", xerr.GetMsgByCode(xerr.RequestParamError), err.Error())
-	httpx.WriteJson(w, http.StatusBadRequest, Error(xerr.ParamFormatError, errMsg))
+	errMsg := fmt.Sprintf("%v", err.Error())
+	httpx.WriteJson(w, http.StatusOK, Error(xerr.ParamFormatError, errMsg))
 }
 
 func JwtUnauthorizedResult(w http.ResponseWriter, r *http.Request, err error) {

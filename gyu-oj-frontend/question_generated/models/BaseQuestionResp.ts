@@ -3,6 +3,7 @@ import { GetQuestionListResp } from "./GetQuestionListResp";
 import { DeleteQuestionResp } from "./DeleteQuestionResp";
 import { GetQuestionResp } from "./GetQuestionResp";
 import { UpdateQuestionResp } from "./UpdateQuestionResp";
+import { CreateQuestionSubmitResp } from "./CreateQuestionSubmitResp";
 
 export type BaseCreateQuestionResponse = {
   code: number;
@@ -32,4 +33,10 @@ export type BaseUpdateQuestionResponse = {
   code: number;
   msg: string;
   data?: UpdateQuestionResp;
+};
+
+export type BaseCreateQuestionSubmitResponse = {
+  code: number;
+  msg: string;
+  data?: CreateQuestionSubmitResp;
 };

@@ -32,6 +32,7 @@ export type {
   BaseDeleteQuestionResponse,
   BaseQueryQuestionResponse,
   BaseUpdateQuestionResponse,
+  BaseCreateQuestionSubmitResponse,
 } from "./models/BaseQuestionResp";
 
 export { QuestionService } from "./services/QuestionService";
