@@ -29,6 +29,10 @@ type (
 	QuestionSubmitAddResp        = pb.QuestionSubmitAddResp
 	QuestionSubmitListByPageReq  = pb.QuestionSubmitListByPageReq
 	QuestionSubmitListByPageResp = pb.QuestionSubmitListByPageResp
+	QuestionSubmitQueryByIdReq   = pb.QuestionSubmitQueryByIdReq
+	QuestionSubmitQueryByIdResp  = pb.QuestionSubmitQueryByIdResp
+	QuestionSubmitUpdateReq      = pb.QuestionSubmitUpdateReq
+	QuestionSubmitUpdateResp     = pb.QuestionSubmitUpdateResp
 	QuestionSubmitVO             = pb.QuestionSubmitVO
 	QuestionUpdateReq            = pb.QuestionUpdateReq
 	QuestionUpdateResp           = pb.QuestionUpdateResp

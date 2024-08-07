@@ -75,6 +75,9 @@ func init() {
 	// QuestionSubmit
 	mapCodMsg[CreateQuestionSubmitError] = "创建题目提交记录错误"
 	mapCodMsg[QueryQuestionSubmitError] = "查询题目提交记录错误"
+	mapCodMsg[QueryQuestionSubmitByIdError] = "根据 id 查询题目提交记录错误"
+	mapCodMsg[UpdateQuestionSubmitError] = "更新题目提交记录错误"
+	mapCodMsg[QuestionSubmitNotExistError] = "题目提交记录不存在"
 
 }
 

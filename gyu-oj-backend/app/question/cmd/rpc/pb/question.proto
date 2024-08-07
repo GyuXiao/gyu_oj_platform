@@ -148,9 +148,29 @@ message QuestionSubmitListByPageResp {
   int64 totalNum = 2;
 }
 
+message QuestionSubmitQueryByIdReq {
+  string id = 1;
+}
+
+message QuestionSubmitQueryByIdResp {
+  QuestionSubmitVO questionSubmitVO = 1;
+}
+
+message QuestionSubmitUpdateReq {
+  string id = 1;
+  JudgeInfo judgeInfo = 2;
+  int64 status = 3;
+}
+
+message QuestionSubmitUpdateResp {
+  bool updateOK = 1;
+}
+
 service questionSubmit {
   rpc doQuestionSubmit(QuestionSubmitAddReq) returns(QuestionSubmitAddResp);
   rpc queryQuestionSubmit(QuestionSubmitListByPageReq) returns(QuestionSubmitListByPageResp);
+  rpc queryQuestionSubmitById(QuestionSubmitQueryByIdReq) returns(QuestionSubmitQueryByIdResp);
+  rpc updateQuestionSubmitById(QuestionSubmitUpdateReq) returns(QuestionSubmitUpdateResp);
 }
 
 // 在 rpc 目录下执行

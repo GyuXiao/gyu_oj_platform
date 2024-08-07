@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option go_package = "./pb";
+
+package pb;
+
+message JudgeReq {
+  string questionSubmitId = 1;
+}
+
+message JudgeResp {
+  string id = 1;
+  string language = 2;
+  string submitCode = 3;
+  string judgeInfoMessage = 4;
+  int64 judgeInfoTime = 5;
+  int64 judgeInfoMemory = 6;
+  int64 status = 7;
+  string questionId = 8;
+  int64 userId = 9;
+  int64 createTime = 10;
+  int64 updateTime = 11;
+}
+
+service judge {
+  rpc doJudge(JudgeReq) returns(JudgeResp);
+}
+
+// 在 rpc 目录下执行
+// goctl rpc protoc ./pb/judge.proto --go_out=. --go-grpc_out=. --zrpc_out=. -m

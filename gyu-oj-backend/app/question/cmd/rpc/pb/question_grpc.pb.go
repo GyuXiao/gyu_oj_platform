@@ -257,8 +257,10 @@ var Question_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	QuestionSubmit_DoQuestionSubmit_FullMethodName    = "/pb.questionSubmit/doQuestionSubmit"
-	QuestionSubmit_QueryQuestionSubmit_FullMethodName = "/pb.questionSubmit/queryQuestionSubmit"
+	QuestionSubmit_DoQuestionSubmit_FullMethodName         = "/pb.questionSubmit/doQuestionSubmit"
+	QuestionSubmit_QueryQuestionSubmit_FullMethodName      = "/pb.questionSubmit/queryQuestionSubmit"
+	QuestionSubmit_QueryQuestionSubmitById_FullMethodName  = "/pb.questionSubmit/queryQuestionSubmitById"
+	QuestionSubmit_UpdateQuestionSubmitById_FullMethodName = "/pb.questionSubmit/updateQuestionSubmitById"
 )
 
 // QuestionSubmitClient is the client API for QuestionSubmit service.
@@ -267,6 +269,8 @@ const (
 type QuestionSubmitClient interface {
 	DoQuestionSubmit(ctx context.Context, in *QuestionSubmitAddReq, opts ...grpc.CallOption) (*QuestionSubmitAddResp, error)
 	QueryQuestionSubmit(ctx context.Context, in *QuestionSubmitListByPageReq, opts ...grpc.CallOption) (*QuestionSubmitListByPageResp, error)
+	QueryQuestionSubmitById(ctx context.Context, in *QuestionSubmitQueryByIdReq, opts ...grpc.CallOption) (*QuestionSubmitQueryByIdResp, error)
+	UpdateQuestionSubmitById(ctx context.Context, in *QuestionSubmitUpdateReq, opts ...grpc.CallOption) (*QuestionSubmitUpdateResp, error)
 }
 
 type questionSubmitClient struct {
@@ -295,12 +299,32 @@ func (c *questionSubmitClient) QueryQuestionSubmit(ctx context.Context, in *Ques
 	return out, nil
 }
 
+func (c *questionSubmitClient) QueryQuestionSubmitById(ctx context.Context, in *QuestionSubmitQueryByIdReq, opts ...grpc.CallOption) (*QuestionSubmitQueryByIdResp, error) {
+	out := new(QuestionSubmitQueryByIdResp)
+	err := c.cc.Invoke(ctx, QuestionSubmit_QueryQuestionSubmitById_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *questionSubmitClient) UpdateQuestionSubmitById(ctx context.Context, in *QuestionSubmitUpdateReq, opts ...grpc.CallOption) (*QuestionSubmitUpdateResp, error) {
+	out := new(QuestionSubmitUpdateResp)
+	err := c.cc.Invoke(ctx, QuestionSubmit_UpdateQuestionSubmitById_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QuestionSubmitServer is the server API for QuestionSubmit service.
 // All implementations must embed UnimplementedQuestionSubmitServer
 // for forward compatibility
 type QuestionSubmitServer interface {
 	DoQuestionSubmit(context.Context, *QuestionSubmitAddReq) (*QuestionSubmitAddResp, error)
 	QueryQuestionSubmit(context.Context, *QuestionSubmitListByPageReq) (*QuestionSubmitListByPageResp, error)
+	QueryQuestionSubmitById(context.Context, *QuestionSubmitQueryByIdReq) (*QuestionSubmitQueryByIdResp, error)
+	UpdateQuestionSubmitById(context.Context, *QuestionSubmitUpdateReq) (*QuestionSubmitUpdateResp, error)
 	mustEmbedUnimplementedQuestionSubmitServer()
 }
 
@@ -313,6 +337,12 @@ func (UnimplementedQuestionSubmitServer) DoQuestionSubmit(context.Context, *Ques
 }
 func (UnimplementedQuestionSubmitServer) QueryQuestionSubmit(context.Context, *QuestionSubmitListByPageReq) (*QuestionSubmitListByPageResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryQuestionSubmit not implemented")
+}
+func (UnimplementedQuestionSubmitServer) QueryQuestionSubmitById(context.Context, *QuestionSubmitQueryByIdReq) (*QuestionSubmitQueryByIdResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryQuestionSubmitById not implemented")
+}
+func (UnimplementedQuestionSubmitServer) UpdateQuestionSubmitById(context.Context, *QuestionSubmitUpdateReq) (*QuestionSubmitUpdateResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateQuestionSubmitById not implemented")
 }
 func (UnimplementedQuestionSubmitServer) mustEmbedUnimplementedQuestionSubmitServer() {}
 
@@ -363,6 +393,42 @@ func _QuestionSubmit_QueryQuestionSubmit_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _QuestionSubmit_QueryQuestionSubmitById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QuestionSubmitQueryByIdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QuestionSubmitServer).QueryQuestionSubmitById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: QuestionSubmit_QueryQuestionSubmitById_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QuestionSubmitServer).QueryQuestionSubmitById(ctx, req.(*QuestionSubmitQueryByIdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _QuestionSubmit_UpdateQuestionSubmitById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QuestionSubmitUpdateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QuestionSubmitServer).UpdateQuestionSubmitById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: QuestionSubmit_UpdateQuestionSubmitById_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QuestionSubmitServer).UpdateQuestionSubmitById(ctx, req.(*QuestionSubmitUpdateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // QuestionSubmit_ServiceDesc is the grpc.ServiceDesc for QuestionSubmit service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -377,6 +443,14 @@ var QuestionSubmit_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "queryQuestionSubmit",
 			Handler:    _QuestionSubmit_QueryQuestionSubmit_Handler,
+		},
+		{
+			MethodName: "queryQuestionSubmitById",
+			Handler:    _QuestionSubmit_QueryQuestionSubmitById_Handler,
+		},
+		{
+			MethodName: "updateQuestionSubmitById",
+			Handler:    _QuestionSubmit_UpdateQuestionSubmitById_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

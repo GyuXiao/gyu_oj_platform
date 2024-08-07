@@ -99,6 +99,9 @@ const (
 // QuestionSubmit
 
 const (
-	CreateQuestionSubmitError uint32 = 900001
-	QueryQuestionSubmitError  uint32 = 900002
+	CreateQuestionSubmitError    uint32 = 900001
+	QueryQuestionSubmitError     uint32 = 900002
+	QueryQuestionSubmitByIdError uint32 = 900003
+	UpdateQuestionSubmitError    uint32 = 900004
+	QuestionSubmitNotExistError  uint32 = 900005
 )

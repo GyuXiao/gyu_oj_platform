@@ -29,6 +29,10 @@ type (
 	QuestionSubmitAddResp        = pb.QuestionSubmitAddResp
 	QuestionSubmitListByPageReq  = pb.QuestionSubmitListByPageReq
 	QuestionSubmitListByPageResp = pb.QuestionSubmitListByPageResp
+	QuestionSubmitQueryByIdReq   = pb.QuestionSubmitQueryByIdReq
+	QuestionSubmitQueryByIdResp  = pb.QuestionSubmitQueryByIdResp
+	QuestionSubmitUpdateReq      = pb.QuestionSubmitUpdateReq
+	QuestionSubmitUpdateResp     = pb.QuestionSubmitUpdateResp
 	QuestionSubmitVO             = pb.QuestionSubmitVO
 	QuestionUpdateReq            = pb.QuestionUpdateReq
 	QuestionUpdateResp           = pb.QuestionUpdateResp
@@ -37,6 +41,8 @@ type (
 	QuestionSubmit interface {
 		DoQuestionSubmit(ctx context.Context, in *QuestionSubmitAddReq, opts ...grpc.CallOption) (*QuestionSubmitAddResp, error)
 		QueryQuestionSubmit(ctx context.Context, in *QuestionSubmitListByPageReq, opts ...grpc.CallOption) (*QuestionSubmitListByPageResp, error)
+		QueryQuestionSubmitById(ctx context.Context, in *QuestionSubmitQueryByIdReq, opts ...grpc.CallOption) (*QuestionSubmitQueryByIdResp, error)
+		UpdateQuestionSubmitById(ctx context.Context, in *QuestionSubmitUpdateReq, opts ...grpc.CallOption) (*QuestionSubmitUpdateResp, error)
 	}
 
 	defaultQuestionSubmit struct {
@@ -58,4 +64,14 @@ func (m *defaultQuestionSubmit) DoQuestionSubmit(ctx context.Context, in *Questi
 func (m *defaultQuestionSubmit) QueryQuestionSubmit(ctx context.Context, in *QuestionSubmitListByPageReq, opts ...grpc.CallOption) (*QuestionSubmitListByPageResp, error) {
 	client := pb.NewQuestionSubmitClient(m.cli.Conn())
 	return client.QueryQuestionSubmit(ctx, in, opts...)
+}
+
+func (m *defaultQuestionSubmit) QueryQuestionSubmitById(ctx context.Context, in *QuestionSubmitQueryByIdReq, opts ...grpc.CallOption) (*QuestionSubmitQueryByIdResp, error) {
+	client := pb.NewQuestionSubmitClient(m.cli.Conn())
+	return client.QueryQuestionSubmitById(ctx, in, opts...)
+}
+
+func (m *defaultQuestionSubmit) UpdateQuestionSubmitById(ctx context.Context, in *QuestionSubmitUpdateReq, opts ...grpc.CallOption) (*QuestionSubmitUpdateResp, error) {
+	client := pb.NewQuestionSubmitClient(m.cli.Conn())
+	return client.UpdateQuestionSubmitById(ctx, in, opts...)
 }

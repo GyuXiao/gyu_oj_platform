@@ -31,3 +31,13 @@ func (s *QuestionSubmitServer) QueryQuestionSubmit(ctx context.Context, in *pb.Q
 	l := questionsubmitlogic.NewQueryQuestionSubmitLogic(ctx, s.svcCtx)
 	return l.QueryQuestionSubmit(in)
 }
+
+func (s *QuestionSubmitServer) QueryQuestionSubmitById(ctx context.Context, in *pb.QuestionSubmitQueryByIdReq) (*pb.QuestionSubmitQueryByIdResp, error) {
+	l := questionsubmitlogic.NewQueryQuestionSubmitByIdLogic(ctx, s.svcCtx)
+	return l.QueryQuestionSubmitById(in)
+}
+
+func (s *QuestionSubmitServer) UpdateQuestionSubmitById(ctx context.Context, in *pb.QuestionSubmitUpdateReq) (*pb.QuestionSubmitUpdateResp, error) {
+	l := questionsubmitlogic.NewUpdateQuestionSubmitByIdLogic(ctx, s.svcCtx)
+	return l.UpdateQuestionSubmitById(in)
+}

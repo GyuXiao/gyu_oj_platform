@@ -37,7 +37,10 @@ func (l *GetQuestionByIdLogic) GetQuestionById(in *pb.QuestionGetByIdReq) (*pb.Q
 	}
 
 	question, err := do.Question.Where(do.Question.ID.Eq(int64(id))).First()
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, xerr.NewErrCode(xerr.QuestionNotExistError)
+	}
+	if err != nil {
 		return nil, xerr.NewErrCode(xerr.SearchQuestionByIdError)
 	}
 	questionVO := pb.QuestionVO{
