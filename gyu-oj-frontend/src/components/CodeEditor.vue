@@ -37,6 +37,7 @@ watch(
   () => props.language,
   () => {
     if (codeEditor.value) {
+      // 根据选定的不同语言，代码编辑器会显示不同的代码高亮
       monaco.editor.setModelLanguage(
         toRaw(codeEditor.value).getModel(),
         props.language

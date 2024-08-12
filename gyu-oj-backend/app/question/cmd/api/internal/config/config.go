@@ -13,4 +13,5 @@ type Config struct {
 	}
 	UserRpcConf     zrpc.RpcClientConf
 	QuestionRpcConf zrpc.RpcClientConf
+	JudgeRpcConf    zrpc.RpcClientConf
 }

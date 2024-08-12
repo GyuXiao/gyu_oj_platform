@@ -58,7 +58,6 @@
           <a-button
             type="dashed"
             status="success"
-            shape="round"
             style="min-width: 200px"
             @click="doSubmitCode"
           >
@@ -137,10 +136,10 @@ const doSubmitCode = async () => {
 };
 
 const tagsColorsMap = new Map([
-  ["simple", "#7bc616"],
-  ["medium", "#ffb400"],
-  ["hard", "#ff5722"],
-  ["default", "#165dff"],
+  ["简单", "green"],
+  ["中等", "gold"],
+  ["困难", "orangered"],
+  ["default", "blue"],
 ]);
 const getTagsColor = (tag: string) => {
   if (tag == "" || tag == undefined || !tagsColorsMap.has(tag)) {

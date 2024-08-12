@@ -1,14 +1,14 @@
 <template>
   <div id="QuestionsView">
     <a-form :model="searchParams" layout="inline">
-      <a-form-item field="title" label="名称" style="min-width: 240px">
+      <a-form-item field="title" label="题目名称" style="min-width: 240px">
         <a-input v-model="searchParams.title" placeholder="请输入题目名称" />
       </a-form-item>
       <!--      <a-form-item field="tags" label="标签" style="min-width: 240px">-->
       <!--        <a-input-tag v-model="searchParams.tags" placeholder="请输入标签" />-->
       <!--      </a-form-item>-->
       <a-form-item>
-        <a-button type="primary" @click="doSearchByTagsOrTitle">搜索</a-button>
+        <a-button type="text" @click="doSearchByTagsOrTitle">搜索 </a-button>
       </a-form-item>
     </a-form>
     <a-divider size="0" />
@@ -30,6 +30,7 @@
             v-for="(tag, index) of record.tags"
             :key="index"
             :color="getTagsColor(tag)"
+            bordered
             >{{ tag }}
           </a-tag>
         </a-space>
@@ -46,7 +47,11 @@
       </template>
       <template #optional="{ record }">
         <a-space>
-          <a-button type="primary" @click="toQuestionPage(record)">
+          <a-button
+            type="dashed"
+            status="success"
+            @click="toQuestionPage(record)"
+          >
             去做题~
           </a-button>
         </a-space>
@@ -66,10 +71,10 @@ const tableRef = ref();
 const router = useRouter();
 
 const tagsColorsMap = new Map([
-  ["simple", "#7bc616"],
-  ["medium", "#ffb400"],
-  ["hard", "#ff5722"],
-  ["default", "#165dff"],
+  ["简单", "green"],
+  ["中等", "gold"],
+  ["困难", "orangered"],
+  ["default", "blue"],
 ]);
 
 const getTagsColor = (tag: string) => {
@@ -88,7 +93,7 @@ const toQuestionPage = (question: QuestionVO) => {
 const searchParams = ref({
   title: "",
   tags: [],
-  pageSize: 10,
+  pageSize: 20,
   current: 1,
 });
 const dataList = ref([]);

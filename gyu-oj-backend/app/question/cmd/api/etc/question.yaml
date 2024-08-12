@@ -24,3 +24,9 @@ QuestionRpcConf:
     Hosts:
       - 127.0.0.1:2379
     Key: question-rpc
+
+JudgeRpcConf:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: judge-rpc

@@ -74,14 +74,6 @@ export const routes: Array<RouteRecordRaw> = [
       access: ACCESS_ENUM.ADMIN,
     },
   },
-  // {
-  //   path: "/hide",
-  //   name: "隐藏页面",
-  //   component: ExampleView,
-  //   meta: {
-  //     hideInMenu: true,
-  //   },
-  // },
   {
     path: "/NoAuth",
     name: "无权限",
@@ -90,21 +82,4 @@ export const routes: Array<RouteRecordRaw> = [
       hideInMenu: true,
     },
   },
-  // {
-  //   path: "/admin",
-  //   name: "管理员可见",
-  //   component: AdminView,
-  //   meta: {
-  //     access: ACCESS_ENUM.ADMIN,
-  //   },
-  // },
-  // {
-  //   path: "/about",
-  //   name: "我的",
-  //   // route level code-splitting
-  //   // this generates a separate chunk (about.[hash].js) for this route
-  //   // which is lazy-loaded when the route is visited.
-  //   component: () =>
-  //     import(/* webpackChunkName: "about" */ "../views/AboutView.vue"),
-  // },
 ];

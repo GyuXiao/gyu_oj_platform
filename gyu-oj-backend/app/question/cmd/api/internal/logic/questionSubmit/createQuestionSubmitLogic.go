@@ -2,6 +2,7 @@ package questionSubmit
 
 import (
 	"context"
+	"gyu-oj-backend/app/judge/cmd/rpc/judge"
 	"gyu-oj-backend/app/question/cmd/rpc/client/questionsubmit"
 	"gyu-oj-backend/app/user/cmd/rpc/client/user"
 	"gyu-oj-backend/common/xerr"
@@ -41,6 +42,13 @@ func (l *CreateQuestionSubmitLogic) CreateQuestionSubmit(req *types.CreateQuesti
 		SubmitCode: req.SubmitCode,
 		QuestionId: req.QuestionId,
 		UserId:     int64(currentUser.Id),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = l.svcCtx.JudgeRpc.DoJudge(l.ctx, &judge.JudgeReq{
+		QuestionSubmitId: resp.Id,
 	})
 	if err != nil {
 		return nil, err
