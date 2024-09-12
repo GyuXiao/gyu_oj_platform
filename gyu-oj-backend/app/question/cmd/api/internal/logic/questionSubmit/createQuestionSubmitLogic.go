@@ -47,6 +47,7 @@ func (l *CreateQuestionSubmitLogic) CreateQuestionSubmit(req *types.CreateQuesti
 		return nil, err
 	}
 
+	// 3,调用判题服务
 	_, err = l.svcCtx.JudgeRpc.DoJudge(l.ctx, &judge.JudgeReq{
 		QuestionSubmitId: resp.Id,
 	})

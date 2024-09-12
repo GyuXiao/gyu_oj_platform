@@ -105,3 +105,12 @@ const (
 	UpdateQuestionSubmitError    uint32 = 900004
 	QuestionSubmitNotExistError  uint32 = 900005
 )
+
+// sandbox
+const (
+	CompileFailError    uint32 = 110001
+	RunFailError        uint32 = 110002
+	RunTimeoutError     uint32 = 110003
+	RunOutOfMemoryError uint32 = 110004
+	SandboxError        uint32 = 110005
+)

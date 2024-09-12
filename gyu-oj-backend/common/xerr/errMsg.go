@@ -79,6 +79,13 @@ func init() {
 	mapCodMsg[UpdateQuestionSubmitError] = "更新题目提交记录错误"
 	mapCodMsg[QuestionSubmitNotExistError] = "题目提交记录不存在"
 
+	// sandbox
+	mapCodMsg[CompileFailError] = "编译代码错误"
+	mapCodMsg[RunFailError] = "运行代码错误"
+	mapCodMsg[RunTimeoutError] = "运行代码时间超出限制错误"
+	mapCodMsg[RunOutOfMemoryError] = "运行代码内存存储限制错误"
+	mapCodMsg[SandboxError] = "代码沙箱系统错误"
+
 }
 
 func GetMsgByCode(errCode uint32) string {
