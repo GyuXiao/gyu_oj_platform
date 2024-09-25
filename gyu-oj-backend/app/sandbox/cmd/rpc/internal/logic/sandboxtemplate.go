@@ -7,7 +7,15 @@ import (
 	"gyu-oj-backend/app/sandbox/cmd/rpc/pb"
 	"gyu-oj-backend/app/sandbox/models/enums"
 	"gyu-oj-backend/common/xerr"
+	"time"
 )
+
+var GoBinaryFileName = "main"
+var userCodesDir = "userCodes"
+var TimeOut = 4500 * time.Millisecond // 时间限制（MS）
+var MemoryLimit = 128                 //内存限制（MB）
+
+var ctx = context.Background()
 
 func SandboxTemplate(c ExecuteCodeItf, param *pb.ExecuteCodeReq) (*pb.ExecuteCodeResp, error) {
 	resp := &pb.ExecuteCodeResp{}

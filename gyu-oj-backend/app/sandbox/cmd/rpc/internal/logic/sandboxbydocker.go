@@ -19,14 +19,31 @@ import (
 	"time"
 )
 
-type SandboxByGoNative struct {
+//var GoBinaryFileName = "main"
+//var userCodesDir = "userCodes"
+//var TimeOut = 4500 * time.Millisecond // 时间限制（MS）
+//var MemoryLimit = 128                 //内存限制（MB）
+//
+//var ctx = context.Background()
+
+type SandboxByDocker struct {
 }
 
-func NewSandboxByGoNative() *SandboxByGoNative {
-	return &SandboxByGoNative{}
+func NewSandboxByDocker() *SandboxByDocker {
+	return &SandboxByDocker{}
 }
 
-func (g *SandboxByGoNative) SaveCodeToFile(userCode []byte) (string, error) {
+/*
+   1,把用户的代码保存为文件
+   2,编译代码，得到 Go 可执行文件
+   3,把编译好的文件上传到容器环境内
+   4,在容器中执行代码，得到输出结果
+   5,收集整理输出结果
+   6,文件清理，释放空间
+   7,错误处理，提升程序健壮性
+*/
+
+func (g *SandboxByDocker) SaveCodeToFile(userCode []byte) (string, error) {
 	dir, err := os.Getwd()
 	if err != nil {
 		logc.Infof(ctx, "获取当前文件夹目录错误: ", err)
@@ -62,7 +79,7 @@ func (g *SandboxByGoNative) SaveCodeToFile(userCode []byte) (string, error) {
 	return codePath, nil
 }
 
-func (g *SandboxByGoNative) CompileCode(userCodePath string) error {
+func (g *SandboxByDocker) CompileCode(userCodePath string) error {
 	if runtime.GOOS == "windows" {
 		GoBinaryFileName = GoBinaryFileName + ".exe"
 	}
@@ -94,7 +111,7 @@ func (g *SandboxByGoNative) CompileCode(userCodePath string) error {
 	return nil
 }
 
-func (g *SandboxByGoNative) RunCode(userCodePath string, inputList []string) ([]*models.ExecResult, error) {
+func (g *SandboxByDocker) RunCode(userCodePath string, inputList []string) ([]*models.ExecResult, error) {
 	parentPath := filepath.Dir(userCodePath)
 	runCmdStr := fmt.Sprintf("%s/%s", parentPath, GoBinaryFileName)
 	if runtime.GOOS != "windows" {
@@ -110,7 +127,7 @@ func (g *SandboxByGoNative) RunCode(userCodePath string, inputList []string) ([]
 	go func() {
 		defer close(errorChan)
 		defer close(done)
-		err := doRun(inputList, runCmdStr, executeResult)
+		err := run(inputList, runCmdStr, executeResult)
 		if err != nil {
 			errorChan <- err
 			return
@@ -129,7 +146,7 @@ func (g *SandboxByGoNative) RunCode(userCodePath string, inputList []string) ([]
 	}
 }
 
-func doRun(inputList []string, runCmdStr string, executeResult []*models.ExecResult) error {
+func run(inputList []string, runCmdStr string, executeResult []*models.ExecResult) error {
 	runCmd := &exec.Cmd{}
 	for i, input := range inputList {
 		runCmd = exec.Command(runCmdStr)
@@ -181,7 +198,7 @@ func doRun(inputList []string, runCmdStr string, executeResult []*models.ExecRes
 	return nil
 }
 
-func (g *SandboxByGoNative) GetOutputResponse(executeResult []*models.ExecResult) *pb.ExecuteCodeResp {
+func (g *SandboxByDocker) GetOutputResponse(executeResult []*models.ExecResult) *pb.ExecuteCodeResp {
 	resp := &pb.ExecuteCodeResp{
 		Message: enums.Success.GetMsg(),
 		Status:  enums.Success.GetStatus(),
@@ -215,7 +232,7 @@ func (g *SandboxByGoNative) GetOutputResponse(executeResult []*models.ExecResult
 	return resp
 }
 
-func (g *SandboxByGoNative) DropFile(userCodePath string) error {
+func (g *SandboxByDocker) DropFile(userCodePath string) error {
 	err := os.RemoveAll(filepath.Dir(userCodePath))
 	if err != nil {
 		logc.Infof(ctx, "删除文件错误: %v", err)
