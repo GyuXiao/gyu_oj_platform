@@ -27,7 +27,7 @@ import (
 
 var wg sync.WaitGroup
 
-func main() {
+func DockerDemo() {
 	// 1, 创建一个与 Docker 通信的客户端
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
