@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -191,7 +190,8 @@ func (g *SandboxByDocker) CompileCode(userCodePath string) error {
 }
 
 // 1，创建并启动一个容器
-// 2，for 循环里输入样例，运行代码
+// 2，在容器中运行代码
+// 3，安全控制（超时控制，内存监控）
 
 func (g *SandboxByDocker) RunCode(userCodePath string, inputList []string) ([]*ExecResult, error) {
 	// 挂载卷
@@ -203,25 +203,27 @@ func (g *SandboxByDocker) RunCode(userCodePath string, inputList []string) ([]*E
 	}
 	globalContainerID = containerId
 
+	// 结果列表
 	executeResultList := []*ExecResult{}
 
-	doneOfMemory := make(chan struct{})
+	// 内存监控
+	doneOfWatchMemory := make(chan struct{})
+	doneOfRunCode := make(chan error, 1)
 	mxMemoryCh := make(chan uint64, 1)
 	defer func() {
 		memory := <-mxMemoryCh
+		logc.Infof(ctx, "内存使用情况: %v", memory)
 		for i := range executeResultList {
 			executeResultList[i].Memory = int64(BToMb(memory))
 		}
 	}()
-
-	// 内存监控
-	go func(client *client.Client, ctx context.Context, cid string, done chan struct{}) {
+	go func(client *client.Client, ctx context.Context, cid string) {
 		mx := uint64(0)
 		for {
 			select {
-			case <-done:
+			case <-doneOfWatchMemory:
 				mxMemoryCh <- mx
-				close(done)
+				close(doneOfWatchMemory)
 				return
 			default:
 				// 执行 docker stats 获取资源使用情况
@@ -239,30 +241,43 @@ func (g *SandboxByDocker) RunCode(userCodePath string, inputList []string) ([]*E
 				containerStatsResp.Body.Close()
 			}
 		}
-	}(g.Cli, g.Ctx, containerId, doneOfMemory)
+	}(g.Cli, g.Ctx, containerId)
 
 	// 运行代码
-	for _, input := range inputList {
-		cmdStr := RunCmdStr + strings.TrimSpace(input)
-		runCmd := strings.Split(strings.TrimSpace(cmdStr), " ")
-		res, err := g.runCodeInContainer(containerId, runCmd)
+	go func(cid string, inputList []string) {
+		for _, input := range inputList {
+			cmdStr := RunCmdStr + strings.TrimSpace(input)
+			runCmd := strings.Split(strings.TrimSpace(cmdStr), " ")
+			res, err := g.runCodeInContainer(cid, runCmd)
+			if err != nil {
+				logc.Infof(g.Ctx, "运行代码失败: %v", err)
+				doneOfRunCode <- err
+				return
+			}
+			// 记录答案
+			executeResultList = append(executeResultList, res)
+		}
+		doneOfWatchMemory <- struct{}{}
+		doneOfRunCode <- nil
+		return
+	}(containerId, inputList)
+
+	select {
+	case <-time.After(timeout):
+		return nil, errors.New("代码运行超时")
+	case err := <-doneOfRunCode:
 		if err != nil {
-			logc.Infof(g.Ctx, "运行代码失败: %v", err)
 			return nil, err
 		}
-		// 记录答案
-		executeResultList = append(executeResultList, res)
+		logc.Infof(g.Ctx, "运行代码成功")
+		return executeResultList, nil
 	}
-	doneOfMemory <- struct{}{}
-
-	logc.Infof(g.Ctx, "运行代码成功")
-	return executeResultList, nil
 }
 
 func (g *SandboxByDocker) runCodeInContainer(containerId string, runCmd []string) (*ExecResult, error) {
 	result := &ExecResult{}
 
-	// 运行代码
+	// 执行 docker exec 运行代码
 	startTime := time.Now()
 	execCreateResp, err := g.Cli.ContainerExecCreate(g.Ctx, containerId, container.ExecOptions{
 		AttachStdin:  true,
@@ -277,6 +292,7 @@ func (g *SandboxByDocker) runCodeInContainer(containerId string, runCmd []string
 		return nil, err
 	}
 
+	// 建立连接，获取输出
 	resp, err := g.Cli.ContainerExecAttach(ctx, execCreateResp.ID, container.ExecStartOptions{})
 	defer resp.Close()
 	if err != nil {
@@ -286,38 +302,24 @@ func (g *SandboxByDocker) runCodeInContainer(containerId string, runCmd []string
 	needTime := time.Since(startTime).Milliseconds()
 	result.Time = needTime
 
-	done := make(chan error, 1)
 	// 收集标准输出、标准错误
-	go func(reader *bufio.Reader, result *ExecResult) {
-		var outBuf, errBuf bytes.Buffer
-		_, err = stdcopy.StdCopy(&outBuf, &errBuf, reader)
-		stdout, err := io.ReadAll(&outBuf)
-		if err != nil {
-			logc.Infof(g.Ctx, "读取标准输出或标准错误失败: %v", err)
-			done <- err
-			return
-		}
-		result.StdOut = string(stdout)
-		stderr, err := io.ReadAll(&errBuf)
-		if err != nil {
-			logc.Infof(g.Ctx, "读取标准错误失败: %v", err)
-			done <- err
-			return
-		}
-		result.StdErr = string(stderr)
-		done <- nil
-		return
-	}(resp.Reader, result)
-
-	select {
-	case <-time.After(timeout):
-		return nil, errors.New("运行代码超时")
-	case err := <-done:
-		if err != nil {
-			return nil, err
-		}
-		return result, nil
+	var outBuf, errBuf bytes.Buffer
+	_, err = stdcopy.StdCopy(&outBuf, &errBuf, resp.Reader)
+	stdout, err := io.ReadAll(&outBuf)
+	if err != nil {
+		logc.Infof(g.Ctx, "读取标准输出或标准错误失败: %v", err)
+		return nil, err
 	}
+	result.StdOut = string(stdout)
+
+	stderr, err := io.ReadAll(&errBuf)
+	if err != nil {
+		logc.Infof(g.Ctx, "读取标准错误失败: %v", err)
+		return nil, err
+	}
+	result.StdErr = string(stderr)
+
+	return result, nil
 }
 
 func (g *SandboxByDocker) GetOutputResponse(executeResult []*ExecResult) *ExecuteCodeResp {
