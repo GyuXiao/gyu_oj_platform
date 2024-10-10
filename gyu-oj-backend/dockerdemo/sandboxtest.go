@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
@@ -36,8 +39,8 @@ type ExecuteCodeResp struct {
 var (
 	ctx               = context.Background()
 	userCodesDir      = "userCodes"             // 存放用户代码的目录
-	timeout           = 4500 * time.Millisecond // 时间限制（MS）
-	memoryLimit       = 128                     //内存限制（MB）
+	timeout           = 4000 * time.Millisecond // 时间限制（MS）
+	memoryLimit       = 128 * 1024 * 1024       //内存限制（bytes）
 	globalContainerID string
 )
 
@@ -74,7 +77,6 @@ func main() {
 	if err != nil {
 		logc.Infof(ctx, "编译代码失败 err: %v", err)
 	}
-	//time.Sleep(3 * time.Second)
 
 	// 运行用户代码
 	inputList := []string{"1 1", "2 2", "3 3", "4 4", "5 5"}
@@ -199,57 +201,123 @@ func (g *SandboxByDocker) RunCode(userCodePath string, inputList []string) ([]*E
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("创建并启动运行代码的容器成功")
 	globalContainerID = containerId
 
-	executeResult := make([]*ExecResult, len(inputList))
-	for i, input := range inputList {
+	executeResultList := []*ExecResult{}
+
+	doneOfMemory := make(chan struct{})
+	mxMemoryCh := make(chan uint64, 1)
+	defer func() {
+		memory := <-mxMemoryCh
+		for i := range executeResultList {
+			executeResultList[i].Memory = int64(BToMb(memory))
+		}
+	}()
+
+	// 内存监控
+	go func(client *client.Client, ctx context.Context, cid string, done chan struct{}) {
+		mx := uint64(0)
+		for {
+			select {
+			case <-done:
+				mxMemoryCh <- mx
+				close(done)
+				return
+			default:
+				// 执行 docker stats 获取资源使用情况
+				containerStatsResp, err := client.ContainerStats(ctx, cid, false)
+				if err != nil {
+					logc.Infof(ctx, "开启内存监控失败: %v", err)
+					return
+				}
+				var statsResp container.StatsResponse
+				err = json.NewDecoder(containerStatsResp.Body).Decode(&statsResp)
+				if err != nil {
+					logc.Infof(ctx, "json 解析失败: %v", err)
+				}
+				mx = max(mx, statsResp.MemoryStats.Usage)
+				containerStatsResp.Body.Close()
+			}
+		}
+	}(g.Cli, g.Ctx, containerId, doneOfMemory)
+
+	// 运行代码
+	for _, input := range inputList {
 		cmdStr := RunCmdStr + strings.TrimSpace(input)
 		runCmd := strings.Split(strings.TrimSpace(cmdStr), " ")
-
-		// 创建执行命令
-		execCreateResp, err := g.Cli.ContainerExecCreate(g.Ctx, containerId, container.ExecOptions{
-			AttachStdin:  true,
-			AttachStdout: true,
-			AttachStderr: true,
-			WorkingDir:   ContainerWorkDir,
-			Cmd:          runCmd,
-			Tty:          true,
-		})
+		res, err := g.runCodeInContainer(containerId, runCmd)
 		if err != nil {
-			logc.Infof(g.Ctx, "创建运行命令失败: %v", err)
-			return nil, err
-		}
-		// 执行命令
-		resp, err := g.Cli.ContainerExecAttach(ctx, execCreateResp.ID, container.ExecStartOptions{})
-		if err != nil {
-			logc.Infof(g.Ctx, "等待运行命令执行完成时获取输出失败: %v", err)
-			return nil, err
-		}
-
-		// 标准输出、标准错误
-		var outBuf, errBuf bytes.Buffer
-		_, err = stdcopy.StdCopy(&outBuf, &errBuf, resp.Reader)
-		stdout, err := io.ReadAll(&outBuf)
-		if err != nil {
-			logc.Infof(g.Ctx, "读取标准输出或标准错误失败: %v", err)
-			return nil, err
-		}
-		stderr, err := io.ReadAll(&errBuf)
-		if err != nil {
-			logc.Infof(g.Ctx, "读取标准错误失败: %v", err)
+			logc.Infof(g.Ctx, "运行代码失败: %v", err)
 			return nil, err
 		}
 		// 记录答案
-		executeResult[i] = &ExecResult{
-			StdOut: string(stdout),
-			StdErr: string(stderr),
-		}
+		executeResultList = append(executeResultList, res)
+	}
+	doneOfMemory <- struct{}{}
 
-		resp.Close()
+	logc.Infof(g.Ctx, "运行代码成功")
+	return executeResultList, nil
+}
+
+func (g *SandboxByDocker) runCodeInContainer(containerId string, runCmd []string) (*ExecResult, error) {
+	result := &ExecResult{}
+
+	// 运行代码
+	startTime := time.Now()
+	execCreateResp, err := g.Cli.ContainerExecCreate(g.Ctx, containerId, container.ExecOptions{
+		AttachStdin:  true,
+		AttachStdout: true,
+		AttachStderr: true,
+		WorkingDir:   ContainerWorkDir,
+		Cmd:          runCmd,
+		Tty:          true,
+	})
+	if err != nil {
+		logc.Infof(g.Ctx, "执行 docker exec 失败: %v", err)
+		return nil, err
 	}
 
-	return executeResult, nil
+	resp, err := g.Cli.ContainerExecAttach(ctx, execCreateResp.ID, container.ExecStartOptions{})
+	defer resp.Close()
+	if err != nil {
+		logc.Infof(g.Ctx, "获取 docker 输出失败: %v", err)
+		return nil, err
+	}
+	needTime := time.Since(startTime).Milliseconds()
+	result.Time = needTime
+
+	done := make(chan error, 1)
+	// 收集标准输出、标准错误
+	go func(reader *bufio.Reader, result *ExecResult) {
+		var outBuf, errBuf bytes.Buffer
+		_, err = stdcopy.StdCopy(&outBuf, &errBuf, reader)
+		stdout, err := io.ReadAll(&outBuf)
+		if err != nil {
+			logc.Infof(g.Ctx, "读取标准输出或标准错误失败: %v", err)
+			done <- err
+			return
+		}
+		result.StdOut = string(stdout)
+		stderr, err := io.ReadAll(&errBuf)
+		if err != nil {
+			logc.Infof(g.Ctx, "读取标准错误失败: %v", err)
+			done <- err
+			return
+		}
+		result.StdErr = string(stderr)
+		done <- nil
+		return
+	}(resp.Reader, result)
+
+	select {
+	case <-time.After(timeout):
+		return nil, errors.New("运行代码超时")
+	case err := <-done:
+		if err != nil {
+			return nil, err
+		}
+		return result, nil
+	}
 }
 
 func (g *SandboxByDocker) GetOutputResponse(executeResult []*ExecResult) *ExecuteCodeResp {
@@ -299,15 +367,20 @@ func (g *SandboxByDocker) DropFile(userCodePath string) error {
 func (g *SandboxByDocker) CreateAndStartContainer(image, volume string) (string, error) {
 	// 容器配置
 	containerConfig := &container.Config{
-		Image:        image,
-		Tty:          true,
-		AttachStdin:  true,
-		AttachStdout: true,
-		AttachStderr: true,
-		WorkingDir:   ContainerWorkDir,
+		Image:           image,
+		Tty:             true,
+		AttachStdin:     true,
+		AttachStdout:    true,
+		AttachStderr:    true,
+		WorkingDir:      ContainerWorkDir,
+		NetworkDisabled: true,
 	}
 	hostConfig := &container.HostConfig{
 		Binds: []string{volume},
+		Resources: container.Resources{
+			Memory: int64(memoryLimit),
+		},
+		ReadonlyRootfs: true,
 	}
 	// 容器名
 	containerName := fmt.Sprintf("Container-%s", GetUUID()[:12])
