@@ -10,10 +10,12 @@ import (
 	"time"
 )
 
-var GoBinaryFileName = "main"
-var userCodesDir = "userCodes"
-var TimeOut = 4500 * time.Millisecond // 时间限制（MS）
-var MemoryLimit = 128                 //内存限制（MB）
+var (
+	GoBinaryFileName = "main"
+	UserCodesDir     = "userCodes"
+	TimeoutLimit     = 4000 * time.Millisecond // 时间限制（MS）
+	MemoryLimit      = 128                     //内存限制（MB）
+)
 
 var ctx = context.Background()
 

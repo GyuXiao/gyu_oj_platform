@@ -3,7 +3,11 @@ package logic
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/client"
+	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/zeromicro/go-zero/core/logc"
 	"gyu-oj-backend/app/sandbox/cmd/rpc/pb"
 	"gyu-oj-backend/app/sandbox/models"
@@ -14,26 +18,12 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"time"
 )
 
-//var GoBinaryFileName = "main"
-//var userCodesDir = "userCodes"
-//var TimeOut = 4500 * time.Millisecond // 时间限制（MS）
-//var MemoryLimit = 128                 //内存限制（MB）
-//
-//var ctx = context.Background()
-
-type SandboxByDocker struct {
-}
-
-func NewSandboxByDocker() *SandboxByDocker {
-	return &SandboxByDocker{}
-}
-
 /*
+ * 基于 docker 运行用户代码的所有步骤:
    1,把用户的代码保存为文件
    2,编译代码，得到 Go 可执行文件
    3,把编译好的文件上传到容器环境内
@@ -43,6 +33,31 @@ func NewSandboxByDocker() *SandboxByDocker {
    7,错误处理，提升程序健壮性
 */
 
+var (
+	globalContainerID string
+)
+
+const (
+	RunGoImage       = "alpine:latest"
+	RunCmdStr        = "./main "
+	ContainerWorkDir = "/app"
+	UserCodeName     = "main.go"
+)
+
+type SandboxByDocker struct {
+	Ctx context.Context
+	Cli *client.Client
+}
+
+func NewSandboxByDocker(ctx context.Context, cli *client.Client) *SandboxByDocker {
+	return &SandboxByDocker{
+		Ctx: ctx,
+		Cli: cli,
+	}
+}
+
+// 1,保存用户代码文件
+
 func (g *SandboxByDocker) SaveCodeToFile(userCode []byte) (string, error) {
 	dir, err := os.Getwd()
 	if err != nil {
@@ -50,7 +65,7 @@ func (g *SandboxByDocker) SaveCodeToFile(userCode []byte) (string, error) {
 		return "", err
 	}
 	// 创建存放代码文件的目录文件
-	path := fmt.Sprintf("%s/%s", dir, userCodesDir)
+	path := fmt.Sprintf("%s/%s", dir, UserCodesDir)
 	_, err = os.Stat(path)
 	if os.IsNotExist(err) {
 		err = os.Mkdir(path, os.ModePerm)
@@ -66,27 +81,23 @@ func (g *SandboxByDocker) SaveCodeToFile(userCode []byte) (string, error) {
 		return "", err
 	}
 	// 每个用户的代码的文件路径
-	codePath := fmt.Sprintf("%s/main.go", singleCodeParentPath)
+	codePath := fmt.Sprintf("%s/%s", singleCodeParentPath, UserCodeName)
 	// 创建 main.go 文件
-	f, err := os.Create(codePath)
+	err = os.WriteFile(codePath, userCode, 0644)
 	if err != nil {
+		logc.Infof(g.Ctx, "创建用户代码文件失败: %v", err)
 		return "", err
 	}
-	// 写入代码
-	f.Write(userCode)
-	defer f.Close()
 
 	return codePath, nil
 }
 
-func (g *SandboxByDocker) CompileCode(userCodePath string) error {
-	if runtime.GOOS == "windows" {
-		GoBinaryFileName = GoBinaryFileName + ".exe"
-	}
+// 2,在 linux 本地环境里编译为可执行文件
 
+func (g *SandboxByDocker) CompileCode(userCodePath string) error {
 	parentPath := filepath.Dir(userCodePath)
 	compileCmdStr := fmt.Sprintf("go build -o %s/%s %s", parentPath, GoBinaryFileName, userCodePath)
-	logc.Infof(ctx, "编译命令: %v", compileCmdStr)
+	fmt.Println("编译代码的命令: ", compileCmdStr)
 
 	compileParts := strings.Split(compileCmdStr, " ")
 	compileCmd := exec.Command(compileParts[0], compileParts[1:]...)
@@ -97,7 +108,7 @@ func (g *SandboxByDocker) CompileCode(userCodePath string) error {
 	err := compileCmd.Run()
 	if err != nil {
 		logc.Infof(ctx, "编译失败: %v", err)
-		return xerr.NewErrCode(xerr.CompileFailError)
+		return err
 	}
 	// 修改可执行文件的文件权限
 	compileFilePath := fmt.Sprintf("%s/%s", parentPath, GoBinaryFileName)
@@ -111,92 +122,153 @@ func (g *SandboxByDocker) CompileCode(userCodePath string) error {
 	return nil
 }
 
+// 3,运行用户代码
+// 3.1,创建并启动一个容器
+// 3.2,在容器中运行代码
+// 3.3,安全控制（超时控制，内存监控）
+
 func (g *SandboxByDocker) RunCode(userCodePath string, inputList []string) ([]*models.ExecResult, error) {
-	parentPath := filepath.Dir(userCodePath)
-	runCmdStr := fmt.Sprintf("%s/%s", parentPath, GoBinaryFileName)
-	if runtime.GOOS != "windows" {
-		runCmdStr = "./" + runCmdStr
+	// 挂载卷
+	localToContainerVolume := fmt.Sprintf("%s:%s", filepath.Dir(userCodePath), ContainerWorkDir)
+	// 创建并启动容器
+	containerId, err := g.CreateAndStartContainer(RunGoImage, localToContainerVolume)
+	if err != nil {
+		return nil, err
 	}
+	globalContainerID = containerId
 
-	ctx, cancel := context.WithTimeout(context.Background(), TimeOut)
-	defer cancel()
-	errorChan := make(chan error, 1)
-	done := make(chan struct{}, 1)
+	// 结果列表
+	executeResultList := make([]*models.ExecResult, len(inputList))
 
-	executeResult := make([]*models.ExecResult, len(inputList))
-	go func() {
-		defer close(errorChan)
-		defer close(done)
-		err := run(inputList, runCmdStr, executeResult)
-		if err != nil {
-			errorChan <- err
-			return
+	doneOfWatchMemory := make(chan struct{})
+	doneOfRunCode := make(chan error, 1)
+	mxMemoryCh := make(chan uint64, 1)
+
+	// 内存监控
+	go func(client *client.Client, ctx context.Context, cid string) {
+		mx := uint64(0)
+		for {
+			select {
+			case <-doneOfWatchMemory:
+				mxMemoryCh <- mx
+				close(doneOfWatchMemory)
+				return
+			default:
+				// 执行 docker stats 获取资源使用情况
+				containerStatsResp, err := client.ContainerStats(ctx, cid, false)
+				if err != nil {
+					logc.Infof(ctx, "开启内存监控失败: %v", err)
+					return
+				}
+				var statsResp container.StatsResponse
+				err = json.NewDecoder(containerStatsResp.Body).Decode(&statsResp)
+				if err != nil {
+					logc.Infof(ctx, "json 解析失败: %v", err)
+				}
+				mx = max(mx, statsResp.MemoryStats.Usage)
+				containerStatsResp.Body.Close()
+			}
 		}
-		done <- struct{}{}
+	}(g.Cli, g.Ctx, containerId)
+
+	// 运行代码
+	go func(cid string) {
+		// for 循环跑所有输入样例
+		for i, input := range inputList {
+			cmdStr := RunCmdStr + strings.TrimSpace(input)
+			runCmd := strings.Split(strings.TrimSpace(cmdStr), " ")
+			res, err := g.runCodeInContainer(cid, runCmd)
+			if err != nil {
+				logc.Infof(g.Ctx, "运行代码失败: %v", err)
+				doneOfRunCode <- err
+				return
+			}
+			// 记录答案
+			executeResultList[i] = res
+		}
+		doneOfWatchMemory <- struct{}{}
+		doneOfRunCode <- nil
 		return
-	}()
+	}(containerId)
 
 	select {
-	case <-done:
-		return executeResult, nil
-	case err := <-errorChan:
-		return nil, err
-	case <-ctx.Done():
+	case <-time.After(TimeoutLimit):
 		return nil, xerr.NewErrCode(xerr.RunTimeoutError)
+	case err := <-doneOfRunCode:
+		if err != nil {
+			return nil, err
+		}
+		logc.Infof(g.Ctx, "运行代码成功")
+		memory, err := g.getMemoryUsage(mxMemoryCh)
+		if err != nil {
+			return nil, err
+		}
+		for i := range executeResultList {
+			executeResultList[i].Memory = memory
+		}
+		return executeResultList, nil
 	}
 }
 
-func run(inputList []string, runCmdStr string, executeResult []*models.ExecResult) error {
-	runCmd := &exec.Cmd{}
-	for i, input := range inputList {
-		runCmd = exec.Command(runCmdStr)
-		// 标准输出、标准错误
-		var out, stderr bytes.Buffer
-		runCmd.Stderr = &stderr
-		runCmd.Stdout = &out
-		stdinPipe, err := runCmd.StdinPipe()
-		if err != nil {
-			logc.Infof(ctx, "建立读取输入管道错误: %v", err)
-		}
-		// 写入输入样例
-		io.WriteString(stdinPipe, input+"\n")
-
-		// 代码运行之前的内存
-		var beforeMemory runtime.MemStats
-		runtime.ReadMemStats(&beforeMemory)
-
-		// 代码运行前的时间
-		startTime := time.Now()
-
-		// 执行代码
-		err = runCmd.Run()
-		if err != nil {
-			return xerr.NewErrCode(xerr.RunFailError)
-		}
-
-		// 代码运行所需时间
-		needTime := time.Since(startTime).Milliseconds()
-		if needTime > TimeOut.Milliseconds() {
-			return xerr.NewErrCode(xerr.RunTimeoutError)
-		}
-
-		// 代码运行之后的内存
-		var afterMemory runtime.MemStats
-		runtime.ReadMemStats(&afterMemory)
-		needMemory := tools.BToMb(afterMemory.Alloc) - tools.BToMb(beforeMemory.Alloc)
-		if int(needMemory) > MemoryLimit {
-			return xerr.NewErrCode(xerr.RunOutOfMemoryError)
-		}
-
-		executeResult[i] = &models.ExecResult{
-			StdOut: out.String(),
-			StdErr: stderr.String(),
-			Time:   needTime,
-			Memory: int64(needMemory),
-		}
+func (g *SandboxByDocker) getMemoryUsage(memoryCh chan uint64) (int64, error) {
+	memory := <-memoryCh
+	close(memoryCh)
+	logc.Infof(ctx, "内存使用情况: %v", memory)
+	if tools.BToMb(memory) > uint64(MemoryLimit) {
+		return 0, xerr.NewErrCode(xerr.RunOutOfMemoryError)
 	}
-	return nil
+	return int64(tools.BToMb(memory)), nil
 }
+
+func (g *SandboxByDocker) runCodeInContainer(containerId string, runCmd []string) (*models.ExecResult, error) {
+	result := &models.ExecResult{}
+
+	// 执行 docker exec 运行代码
+	startTime := time.Now()
+	execCreateResp, err := g.Cli.ContainerExecCreate(g.Ctx, containerId, container.ExecOptions{
+		AttachStdin:  true,
+		AttachStdout: true,
+		AttachStderr: true,
+		WorkingDir:   ContainerWorkDir,
+		Cmd:          runCmd,
+		Tty:          true,
+	})
+	if err != nil {
+		logc.Infof(g.Ctx, "执行 docker exec 失败: %v", err)
+		return nil, err
+	}
+
+	// 建立连接，获取输出
+	resp, err := g.Cli.ContainerExecAttach(ctx, execCreateResp.ID, container.ExecStartOptions{})
+	defer resp.Close()
+	if err != nil {
+		logc.Infof(g.Ctx, "获取 docker 输出失败: %v", err)
+		return nil, err
+	}
+	needTime := time.Since(startTime).Milliseconds()
+	result.Time = needTime
+
+	// 收集标准输出、标准错误
+	var outBuf, errBuf bytes.Buffer
+	_, err = stdcopy.StdCopy(&outBuf, &errBuf, resp.Reader)
+	stdout, err := io.ReadAll(&outBuf)
+	if err != nil {
+		logc.Infof(g.Ctx, "读取标准输出或标准错误失败: %v", err)
+		return nil, err
+	}
+	result.StdOut = string(stdout)
+
+	stderr, err := io.ReadAll(&errBuf)
+	if err != nil {
+		logc.Infof(g.Ctx, "读取标准错误失败: %v", err)
+		return nil, err
+	}
+	result.StdErr = string(stderr)
+
+	return result, nil
+}
+
+// 4,整理输出数据
 
 func (g *SandboxByDocker) GetOutputResponse(executeResult []*models.ExecResult) *pb.ExecuteCodeResp {
 	resp := &pb.ExecuteCodeResp{
@@ -217,8 +289,9 @@ func (g *SandboxByDocker) GetOutputResponse(executeResult []*models.ExecResult) 
 			break
 		}
 		// 去掉换行符
-		if strings.HasSuffix(result.StdOut, "\n") {
+		if strings.HasSuffix(result.StdOut, "\n") || strings.HasSuffix(result.StdOut, "\r") {
 			result.StdOut = strings.TrimSuffix(result.StdOut, "\n")
+			result.StdOut = strings.TrimSuffix(result.StdOut, "\r")
 		}
 		// 记录代码运行的输出
 		outputList[i] = result.StdOut
@@ -232,10 +305,72 @@ func (g *SandboxByDocker) GetOutputResponse(executeResult []*models.ExecResult) 
 	return resp
 }
 
+// 5,清理整个过程中产生的中间文件
+
 func (g *SandboxByDocker) DropFile(userCodePath string) error {
 	err := os.RemoveAll(filepath.Dir(userCodePath))
 	if err != nil {
-		logc.Infof(ctx, "删除文件错误: %v", err)
+		return err
+	}
+	return nil
+}
+
+// 创建并启动一个 docker 容器
+
+func (g *SandboxByDocker) CreateAndStartContainer(image, volume string) (string, error) {
+	// 容器配置
+	containerConfig := &container.Config{
+		Image:           image,
+		Tty:             true,
+		AttachStdin:     true,
+		AttachStdout:    true,
+		AttachStderr:    true,
+		WorkingDir:      ContainerWorkDir,
+		NetworkDisabled: true,
+	}
+	hostConfig := &container.HostConfig{
+		Binds: []string{volume},
+		Resources: container.Resources{
+			Memory: int64(MemoryLimit * 1024 * 1024),
+		},
+		ReadonlyRootfs: true,
+	}
+	// 容器名
+	containerName := fmt.Sprintf("Container-%s", tools.GetUUID()[:12])
+	// 创建容器
+	createContainerResp, err := g.Cli.ContainerCreate(g.Ctx,
+		containerConfig,
+		hostConfig,
+		nil,
+		nil,
+		containerName)
+	if err != nil {
+		logc.Infof(g.Ctx, "创建容器错误: %v", err)
+	}
+
+	// 容器 ID
+	containerId := createContainerResp.ID
+	// 启动容器
+	err = g.Cli.ContainerStart(g.Ctx, containerId, container.StartOptions{})
+	if err != nil {
+		logc.Infof(g.Ctx, "启动容器错误: %v", err)
+	}
+
+	return containerId, nil
+}
+
+// 关停并删除一个 docker 容器
+
+func (g *SandboxByDocker) StopAndRemoveContainer(containerId string) error {
+	// 删除容器（先停后删）
+	err := g.Cli.ContainerStop(ctx, containerId, container.StopOptions{})
+	if err != nil {
+		logc.Infof(ctx, "停止容器错误: %v", err)
+		return err
+	}
+	err = g.Cli.ContainerRemove(ctx, containerId, container.RemoveOptions{})
+	if err != nil {
+		logc.Infof(ctx, "删除容器错误: %v", err)
 		return err
 	}
 	return nil

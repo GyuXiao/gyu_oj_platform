@@ -38,8 +38,8 @@ type ExecuteCodeResp struct {
 var (
 	ctx               = context.Background()
 	userCodesDir      = "userCodes"             // 存放用户代码的目录
-	timeout           = 4000 * time.Millisecond // 时间限制（MS）
-	memoryLimit       = 128 * 1024 * 1024       //内存限制（bytes）
+	timeoutLimit      = 4000 * time.Millisecond // 时间限制（MS）
+	memoryLimit       = 128                     //内存限制（bytes）
 	globalContainerID string
 )
 
@@ -64,6 +64,7 @@ func main() {
 	sandboxByDocker := NewSandboxByDocker(ctx, cli)
 
 	// 用户代码
+	//timeoutCode := "package main\n\nimport (\n\t\"fmt\"\n\t\"os\"\n\t\"strconv\"\n)\n\nfunc main() {\n\t// 已处理输入参数，示例代码直接使用\n\targs := os.Args[1:]\n\ta, _ := strconv.Atoi(args[0])\n\tb, _ := strconv.Atoi(args[1])\n\tfmt.Println(sumOfTwoNumbers(a, b))\n}\n\nfunc sumOfTwoNumbers(a, b int) int {\n\tfor {\n\t\tfmt.Println(\"dead loop\")\n\t}\n\t// 请在此处编辑代码\n\treturn a + b\t\n}"
 	userCode := "package main\n\nimport (\n\t\"fmt\"\n\t\"os\"\n\t\"strconv\"\n)\n\nfunc main() {\n\t// 已处理输入参数，示例代码直接使用\n\targs := os.Args[1:]\n\ta, _ := strconv.Atoi(args[0])\n\tb, _ := strconv.Atoi(args[1])\n\tfmt.Println(sumOfTwoNumbers(a, b))\n}\n\nfunc sumOfTwoNumbers(a, b int) int {\n\t// 请在此处编辑代码\n\treturn a + b\n}"
 	// 保存用户代码
 	userCodePath, err := sandboxByDocker.SaveCodeToFile([]byte(userCode))
@@ -159,7 +160,6 @@ func (g *SandboxByDocker) SaveCodeToFile(userCode []byte) (string, error) {
 }
 
 // 2,在 linux 环境里编译为可执行文件，然后复制到容器即可。
-// 不需要去创建容器，删除容器
 
 func (g *SandboxByDocker) CompileCode(userCodePath string) error {
 	parentPath := filepath.Dir(userCodePath)
@@ -204,19 +204,13 @@ func (g *SandboxByDocker) RunCode(userCodePath string, inputList []string) ([]*E
 	globalContainerID = containerId
 
 	// 结果列表
-	executeResultList := []*ExecResult{}
+	executeResultList := make([]*ExecResult, len(inputList))
 
-	// 内存监控
 	doneOfWatchMemory := make(chan struct{})
 	doneOfRunCode := make(chan error, 1)
 	mxMemoryCh := make(chan uint64, 1)
-	defer func() {
-		memory := <-mxMemoryCh
-		logc.Infof(ctx, "内存使用情况: %v", memory)
-		for i := range executeResultList {
-			executeResultList[i].Memory = int64(BToMb(memory))
-		}
-	}()
+
+	// 内存监控
 	go func(client *client.Client, ctx context.Context, cid string) {
 		mx := uint64(0)
 		for {
@@ -244,8 +238,9 @@ func (g *SandboxByDocker) RunCode(userCodePath string, inputList []string) ([]*E
 	}(g.Cli, g.Ctx, containerId)
 
 	// 运行代码
-	go func(cid string, inputList []string) {
-		for _, input := range inputList {
+	go func(cid string) {
+		// for 循环跑所有输入样例
+		for i, input := range inputList {
 			cmdStr := RunCmdStr + strings.TrimSpace(input)
 			runCmd := strings.Split(strings.TrimSpace(cmdStr), " ")
 			res, err := g.runCodeInContainer(cid, runCmd)
@@ -255,21 +250,28 @@ func (g *SandboxByDocker) RunCode(userCodePath string, inputList []string) ([]*E
 				return
 			}
 			// 记录答案
-			executeResultList = append(executeResultList, res)
+			executeResultList[i] = res
 		}
 		doneOfWatchMemory <- struct{}{}
 		doneOfRunCode <- nil
 		return
-	}(containerId, inputList)
+	}(containerId)
 
 	select {
-	case <-time.After(timeout):
+	case <-time.After(timeoutLimit):
 		return nil, errors.New("代码运行超时")
 	case err := <-doneOfRunCode:
 		if err != nil {
 			return nil, err
 		}
 		logc.Infof(g.Ctx, "运行代码成功")
+		memory, err := g.getMemoryUsage(mxMemoryCh)
+		if err != nil {
+			return nil, err
+		}
+		for i := range executeResultList {
+			executeResultList[i].Memory = memory
+		}
 		return executeResultList, nil
 	}
 }
@@ -322,6 +324,16 @@ func (g *SandboxByDocker) runCodeInContainer(containerId string, runCmd []string
 	return result, nil
 }
 
+func (g *SandboxByDocker) getMemoryUsage(memoryCh chan uint64) (int64, error) {
+	memory := <-memoryCh
+	close(memoryCh)
+	logc.Infof(ctx, "内存使用情况: %v", memory)
+	if BToMb(memory) > uint64(memoryLimit) {
+		return 0, errors.New("内存超出限制")
+	}
+	return int64(BToMb(memory)), nil
+}
+
 func (g *SandboxByDocker) GetOutputResponse(executeResult []*ExecResult) *ExecuteCodeResp {
 	resp := &ExecuteCodeResp{
 		Message: Success.GetMsg(),
@@ -360,7 +372,6 @@ func (g *SandboxByDocker) GetOutputResponse(executeResult []*ExecResult) *Execut
 func (g *SandboxByDocker) DropFile(userCodePath string) error {
 	err := os.RemoveAll(filepath.Dir(userCodePath))
 	if err != nil {
-		logc.Infof(ctx, "删除文件错误: %v", err)
 		return err
 	}
 	return nil
@@ -380,7 +391,7 @@ func (g *SandboxByDocker) CreateAndStartContainer(image, volume string) (string,
 	hostConfig := &container.HostConfig{
 		Binds: []string{volume},
 		Resources: container.Resources{
-			Memory: int64(memoryLimit),
+			Memory: int64(memoryLimit * 1024 * 1024),
 		},
 		ReadonlyRootfs: true,
 	}

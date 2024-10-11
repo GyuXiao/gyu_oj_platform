@@ -33,7 +33,7 @@ func (g *SandboxByGoNative) SaveCodeToFile(userCode []byte) (string, error) {
 		return "", err
 	}
 	// 创建存放代码文件的目录文件
-	path := fmt.Sprintf("%s/%s", dir, userCodesDir)
+	path := fmt.Sprintf("%s/%s", dir, UserCodesDir)
 	_, err = os.Stat(path)
 	if os.IsNotExist(err) {
 		err = os.Mkdir(path, os.ModePerm)
@@ -101,7 +101,7 @@ func (g *SandboxByGoNative) RunCode(userCodePath string, inputList []string) ([]
 		runCmdStr = "./" + runCmdStr
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), TimeOut)
+	ctx, cancel := context.WithTimeout(context.Background(), TimeoutLimit)
 	defer cancel()
 	errorChan := make(chan error, 1)
 	done := make(chan struct{}, 1)
@@ -159,7 +159,7 @@ func doRun(inputList []string, runCmdStr string, executeResult []*models.ExecRes
 
 		// 代码运行所需时间
 		needTime := time.Since(startTime).Milliseconds()
-		if needTime > TimeOut.Milliseconds() {
+		if needTime > TimeoutLimit.Milliseconds() {
 			return xerr.NewErrCode(xerr.RunTimeoutError)
 		}
 
