@@ -33,8 +33,10 @@ func SandboxTemplate(c ExecuteCodeItf, param *pb.ExecuteCodeReq) (*pb.ExecuteCod
 	defer func() {
 		err := c.DropFile(userCodePath)
 		if err != nil {
-			logc.Infof(context.Background(), "删除文件失败: %v", err)
+			logc.Infof(ctx, "删除文件失败: %v", err)
+			return
 		}
+		logc.Info(ctx, "删除文件成功")
 	}()
 
 	// 2，编译代码
@@ -64,12 +66,13 @@ func SandboxTemplate(c ExecuteCodeItf, param *pb.ExecuteCodeReq) (*pb.ExecuteCod
 		resp.Message = enums.RunFail.GetMsg()
 		return resp, err
 	}
-
 	if len(runResultList) <= 0 {
 		resp.Status = enums.RunFail.GetStatus()
 		resp.Message = enums.RunFail.GetMsg()
 		return resp, err
 	}
+
+	logc.Info(ctx, "运行代码成功")
 
 	// 4，整理代码的输出结果
 	resp = c.GetOutputResponse(runResultList)

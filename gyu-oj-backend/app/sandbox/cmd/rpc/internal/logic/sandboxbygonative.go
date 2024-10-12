@@ -2,7 +2,6 @@ package logic
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logc"
 	"gyu-oj-backend/app/sandbox/cmd/rpc/pb"
@@ -10,7 +9,6 @@ import (
 	"gyu-oj-backend/app/sandbox/models/enums"
 	"gyu-oj-backend/common/tools"
 	"gyu-oj-backend/common/xerr"
-	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -101,84 +99,77 @@ func (g *SandboxByGoNative) RunCode(userCodePath string, inputList []string) ([]
 		runCmdStr = "./" + runCmdStr
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), TimeoutLimit)
-	defer cancel()
-	errorChan := make(chan error, 1)
-	done := make(chan struct{}, 1)
-
+	done := make(chan error, 1)
 	executeResult := make([]*models.ExecResult, len(inputList))
 	go func() {
-		defer close(errorChan)
-		defer close(done)
-		err := doRun(inputList, runCmdStr, executeResult)
-		if err != nil {
-			errorChan <- err
-			return
+		for i, input := range inputList {
+			res, err := doRun(input, runCmdStr)
+			if err != nil {
+				done <- err
+				return
+			}
+			executeResult[i] = res
 		}
-		done <- struct{}{}
+		done <- nil
 		return
 	}()
 
 	select {
-	case <-done:
-		return executeResult, nil
-	case err := <-errorChan:
-		return nil, err
-	case <-ctx.Done():
+	case <-time.After(TimeoutLimit):
 		return nil, xerr.NewErrCode(xerr.RunTimeoutError)
+	case err := <-done:
+		close(done)
+		if err != nil {
+			return nil, err
+		}
+		return executeResult, nil
 	}
 }
 
-func doRun(inputList []string, runCmdStr string, executeResult []*models.ExecResult) error {
+func doRun(input string, runCmdStr string) (*models.ExecResult, error) {
+	input = strings.TrimSpace(input)
+	inputArgs := strings.Split(input, " ")
+
 	runCmd := &exec.Cmd{}
-	for i, input := range inputList {
-		runCmd = exec.Command(runCmdStr)
-		// 标准输出、标准错误
-		var out, stderr bytes.Buffer
-		runCmd.Stderr = &stderr
-		runCmd.Stdout = &out
-		stdinPipe, err := runCmd.StdinPipe()
-		if err != nil {
-			logc.Infof(ctx, "建立读取输入管道错误: %v", err)
-		}
-		// 写入输入样例
-		io.WriteString(stdinPipe, input+"\n")
+	runCmd = exec.Command(runCmdStr, inputArgs...)
+	// 标准输出、标准错误
+	var out, stderr bytes.Buffer
+	runCmd.Stderr = &stderr
+	runCmd.Stdout = &out
 
-		// 代码运行之前的内存
-		var beforeMemory runtime.MemStats
-		runtime.ReadMemStats(&beforeMemory)
+	// 代码运行之前的内存
+	var beforeMemory runtime.MemStats
+	runtime.ReadMemStats(&beforeMemory)
 
-		// 代码运行前的时间
-		startTime := time.Now()
+	// 代码运行前的时间
+	startTime := time.Now()
 
-		// 执行代码
-		err = runCmd.Run()
-		if err != nil {
-			return xerr.NewErrCode(xerr.RunFailError)
-		}
-
-		// 代码运行所需时间
-		needTime := time.Since(startTime).Milliseconds()
-		if needTime > TimeoutLimit.Milliseconds() {
-			return xerr.NewErrCode(xerr.RunTimeoutError)
-		}
-
-		// 代码运行之后的内存
-		var afterMemory runtime.MemStats
-		runtime.ReadMemStats(&afterMemory)
-		needMemory := tools.BToMb(afterMemory.Alloc) - tools.BToMb(beforeMemory.Alloc)
-		if int(needMemory) > MemoryLimit {
-			return xerr.NewErrCode(xerr.RunOutOfMemoryError)
-		}
-
-		executeResult[i] = &models.ExecResult{
-			StdOut: out.String(),
-			StdErr: stderr.String(),
-			Time:   needTime,
-			Memory: int64(needMemory),
-		}
+	// 执行代码
+	err := runCmd.Run()
+	if err != nil {
+		return nil, xerr.NewErrCode(xerr.RunFailError)
 	}
-	return nil
+
+	// 代码运行所需时间
+	needTime := time.Since(startTime).Milliseconds()
+	if needTime > TimeoutLimit.Milliseconds() {
+		return nil, xerr.NewErrCode(xerr.RunTimeoutError)
+	}
+
+	// 代码运行之后的内存
+	var afterMemory runtime.MemStats
+	runtime.ReadMemStats(&afterMemory)
+	needMemory := tools.BToMb(afterMemory.Alloc) - tools.BToMb(beforeMemory.Alloc)
+	if int(needMemory) > MemoryLimit {
+		return nil, xerr.NewErrCode(xerr.RunOutOfMemoryError)
+	}
+
+	return &models.ExecResult{
+		StdOut: out.String(),
+		StdErr: stderr.String(),
+		Time:   needTime,
+		Memory: int64(needMemory),
+	}, nil
 }
 
 func (g *SandboxByGoNative) GetOutputResponse(executeResult []*models.ExecResult) *pb.ExecuteCodeResp {
@@ -218,7 +209,6 @@ func (g *SandboxByGoNative) GetOutputResponse(executeResult []*models.ExecResult
 func (g *SandboxByGoNative) DropFile(userCodePath string) error {
 	err := os.RemoveAll(filepath.Dir(userCodePath))
 	if err != nil {
-		logc.Infof(ctx, "删除文件错误: %v", err)
 		return err
 	}
 	return nil

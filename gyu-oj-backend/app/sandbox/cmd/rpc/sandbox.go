@@ -12,6 +12,7 @@ import (
 	"gyu-oj-backend/app/sandbox/cmd/rpc/internal/server"
 	"gyu-oj-backend/app/sandbox/cmd/rpc/internal/svc"
 	"gyu-oj-backend/app/sandbox/cmd/rpc/pb"
+	"gyu-oj-backend/common/interceptor/rpcserver"
 )
 
 var configFile = flag.String("f", "etc/sandbox.yaml", "the config file")
@@ -30,6 +31,10 @@ func main() {
 			reflection.Register(grpcServer)
 		}
 	})
+
+	// rpc log
+	s.AddUnaryInterceptors(rpcserver.LoggerInterceptor)
+
 	defer s.Stop()
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
