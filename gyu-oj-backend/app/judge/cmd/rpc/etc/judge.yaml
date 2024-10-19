@@ -20,10 +20,16 @@ QuestionRpcConf:
       - 127.0.0.1:2379
     Key: question-rpc
 
+SandboxRpcConf:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: sandbox-rpc
+
 Log:
   ServiceName: judge-rpc
   Level: info
 
 
 CodeSandbox:
-  Type: example
+  Type: remote

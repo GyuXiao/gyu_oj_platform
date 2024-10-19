@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"gyu-oj-backend/common/interceptor/rpcserver"
 
 	"gyu-oj-backend/app/judge/cmd/rpc/internal/config"
 	"gyu-oj-backend/app/judge/cmd/rpc/internal/server"
@@ -32,6 +33,10 @@ func main() {
 			reflection.Register(grpcServer)
 		}
 	})
+
+	// rpc log
+	s.AddUnaryInterceptors(rpcserver.LoggerInterceptor)
+
 	defer s.Stop()
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)

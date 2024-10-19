@@ -15,7 +15,7 @@ var ExecuteStatusMsg = map[ExecuteStatus]string{
 	RunFail:        "代码运行失败",
 	RunTimeout:     "代码运行超时",
 	RunOutOfMemory: "代码运行所需内存超过限制",
-	SystemError:    "系统错误",
+	SystemError:    "系统错误，比如用户代码文件的保存等",
 }
 
 type ExecuteStatus int64

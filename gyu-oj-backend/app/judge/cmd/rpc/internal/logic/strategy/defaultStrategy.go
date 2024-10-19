@@ -21,6 +21,21 @@ func (s *DefaultStrategy) DoJudge(ctx *JudgeContext) (*types.JudgeInfo, error) {
 	}
 
 	// 0,判断代码沙箱的运行结果是否正常
+	if ctx.ExecuteCodeResp.Status != enums.Success.GetStatus() {
+		switch ctx.ExecuteCodeResp.Status {
+		case enums.CompileFail.GetStatus():
+			resp.Message = enums.CompileError
+		case enums.RunFail.GetStatus():
+			resp.Message = enums.RuntimeError
+		case enums.RunTimeout.GetStatus(): // 超过代码沙箱的运行时间限制
+			resp.Message = enums.TimeLimitExceeded
+		case enums.RunOutOfMemory.GetStatus(): // 超过代码沙箱的运行内存限制
+			resp.Message = enums.MemoryLimitExceeded
+		default:
+			resp.Message = enums.SystemError
+		}
+		return resp, nil
+	}
 
 	// 1,先判断沙箱执行的结果输出数量是否和预期输出数量相等
 	if len(ctx.ExecuteCodeResp.OutputList) != len(ctx.JudgeCaseList) {
@@ -38,12 +53,13 @@ func (s *DefaultStrategy) DoJudge(ctx *JudgeContext) (*types.JudgeInfo, error) {
 		}
 	}
 
-	// 3,判题题目的限制是否符合要求
+	// 3.1,判断是否超过题目所要求的时间限制
 	if ctx.ExecuteCodeResp.JudgeInfo.Time > ctx.QuestionVO.JudgeConfig.TimeLimit {
 		logc.Infof(ctx.Ctx, "判题输出结果使用时间大于预期时间上限, 预期是 %v, 代码沙箱的时间消耗是 %v", ctx.QuestionVO.JudgeConfig.TimeLimit, ctx.ExecuteCodeResp.JudgeInfo.Time)
 		resp.Message = enums.TimeLimitExceeded
 		return resp, nil
 	}
+	// 3.2,判断是否超过题目所要求的内存限制
 	if ctx.ExecuteCodeResp.JudgeInfo.Memory > ctx.QuestionVO.JudgeConfig.MemoryLimit {
 		logc.Info(ctx.Ctx, "判题输出结果使用内存空间大于预期空间上限, 预期是 %v, 代码沙箱的空间消耗是 %v", ctx.QuestionVO.JudgeConfig.MemoryLimit, ctx.ExecuteCodeResp.JudgeInfo.Memory)
 		resp.Message = enums.MemoryLimitExceeded

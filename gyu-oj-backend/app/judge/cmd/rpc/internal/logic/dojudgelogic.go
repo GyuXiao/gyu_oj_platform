@@ -61,7 +61,7 @@ func (l *DoJudgeLogic) DoJudge(in *pb.JudgeReq) (*pb.JudgeResp, error) {
 	}
 
 	// 4,调用沙箱，获取到执行结果
-	sandboxImpl := sandbox.SandboxFactory(l.svcCtx.Config.CodeSandbox.Type)
+	sandboxImpl := sandbox.SandboxFactory(l.svcCtx)
 	sandboxProxy := sandbox.SandboxProxy{RealSandbox: sandboxImpl}
 	var judgeCaseInputList []string
 	var judgeCaseOutputList []string
