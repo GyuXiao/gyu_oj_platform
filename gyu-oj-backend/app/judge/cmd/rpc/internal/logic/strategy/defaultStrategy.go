@@ -68,9 +68,6 @@ func (s *DefaultStrategy) DoJudge(ctx *JudgeContext) (*types.JudgeInfo, error) {
 
 	// 4,可能还有其他的异常情况，待补充
 
-	return &types.JudgeInfo{
-		Message: enums.Accepted,
-		Time:    ctx.ExecuteCodeResp.JudgeInfo.Time,
-		Memory:  ctx.ExecuteCodeResp.JudgeInfo.Memory,
-	}, nil
+	resp.Message = enums.Accepted
+	return resp, nil
 }

@@ -37,17 +37,20 @@ func (l *DoJudgeLogic) DoJudge(in *pb.JudgeReq) (*pb.JudgeResp, error) {
 		Id: in.QuestionSubmitId,
 	})
 	if err != nil {
+		logc.Infof(l.ctx, "根据 id 查询 questionSubmit 信息错误: %v", err)
 		return nil, err
 	}
 	questionResp, err := l.svcCtx.QuestionRpc.GetQuestionById(l.ctx, &question.QuestionGetByIdReq{
 		Id: questionSubmitResp.QuestionSubmitVO.QuestionId,
 	})
 	if err != nil {
+		logc.Infof(l.ctx, "根据 id 查询 question 信息错误: %v", err)
 		return nil, err
 	}
 
 	// 2,如果题目提交状态不为等待中，直接返回
 	if questionSubmitResp.QuestionSubmitVO.Status != enums.WAITING {
+		logc.Info(l.ctx, "题目提交状态不是 waiting")
 		return nil, xerr.NewErrCodeMsg(xerr.ServerCommonError, "题目正在在判题中，请等待一下~")
 	}
 
@@ -57,6 +60,7 @@ func (l *DoJudgeLogic) DoJudge(in *pb.JudgeReq) (*pb.JudgeResp, error) {
 		Status: enums.RUNNING,
 	})
 	if err != nil {
+		logc.Infof(l.ctx, "更新题目提交状态为 running 错误: %v", err)
 		return nil, err
 	}
 
@@ -91,11 +95,12 @@ func (l *DoJudgeLogic) DoJudge(in *pb.JudgeReq) (*pb.JudgeResp, error) {
 	// 最终判题结果
 	resp, err := manager.DoJudge(judgeContext)
 	if err != nil {
+		logc.Infof(l.ctx, "执行判题策略错误: %v", err)
 		return nil, err
 	}
 
 	// 6,修改数据库中的判题结果
-	l.svcCtx.QuestionSubmitRpc.UpdateQuestionSubmitById(l.ctx, &question.QuestionSubmitUpdateReq{
+	_, err = l.svcCtx.QuestionSubmitRpc.UpdateQuestionSubmitById(l.ctx, &question.QuestionSubmitUpdateReq{
 		Id: in.QuestionSubmitId,
 		JudgeInfo: &pb2.JudgeInfo{
 			Message: resp.Message,
@@ -104,6 +109,10 @@ func (l *DoJudgeLogic) DoJudge(in *pb.JudgeReq) (*pb.JudgeResp, error) {
 		},
 		Status: enums.SUCCESS,
 	})
+	if err != nil {
+		logc.Infof(l.ctx, "更新题目提交信息错误: %v", err)
+		return nil, err
+	}
 
 	return &pb.JudgeResp{
 		Id:               questionSubmitResp.QuestionSubmitVO.Id,

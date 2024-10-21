@@ -2,8 +2,8 @@ package questionsubmitlogic
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/zeromicro/go-zero/core/logc"
+	"google.golang.org/protobuf/encoding/protojson"
 	"gyu-oj-backend/app/question/models/do"
 	"gyu-oj-backend/app/question/models/entity"
 	"gyu-oj-backend/common/xerr"
@@ -30,14 +30,13 @@ func NewUpdateQuestionSubmitByIdLogic(ctx context.Context, svcCtx *svc.ServiceCo
 }
 
 func (l *UpdateQuestionSubmitByIdLogic) UpdateQuestionSubmitById(in *pb.QuestionSubmitUpdateReq) (*pb.QuestionSubmitUpdateResp, error) {
-	questionSubmit := &entity.QuestionSubmit{}
-	l.fixExtraFields(questionSubmit, in)
-
 	id, err := strconv.Atoi(in.Id)
 	if err != nil {
 		return nil, xerr.NewErrCodeMsg(xerr.ParamFormatError, "UpdateQuestionSubmitById 的请求参数 id: "+in.Id)
 	}
 
+	questionSubmit := &entity.QuestionSubmit{}
+	l.fixExtraFields(questionSubmit, in)
 	_, err = do.QuestionSubmit.Where(do.QuestionSubmit.ID.Eq(int64(id))).Updates(&questionSubmit)
 	if err != nil {
 		return nil, xerr.NewErrCode(xerr.UpdateQuestionSubmitError)
@@ -48,7 +47,9 @@ func (l *UpdateQuestionSubmitByIdLogic) UpdateQuestionSubmitById(in *pb.Question
 
 func (l *UpdateQuestionSubmitByIdLogic) fixExtraFields(questionSubmit *entity.QuestionSubmit, in *pb.QuestionSubmitUpdateReq) {
 	if in.JudgeInfo != nil {
-		judgeInfo, err := json.Marshal(in.JudgeInfo)
+		judgeInfo, err := protojson.MarshalOptions{
+			EmitUnpopulated: true,
+		}.Marshal(in.JudgeInfo)
 		if err != nil {
 			logc.Infof(l.ctx, xerr.GetMsgByCode(xerr.JSONMarshalError))
 		}
