@@ -2,16 +2,17 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { JudgeInfo } from './JudgeInfo';
+import type { JudgeInfo } from "./JudgeInfo";
+
 export type QuestionSubmitVO = {
-    id: string;
-    language: string;
-    submitCode: string;
-    judgeInfo: JudgeInfo;
-    status: number;
-    questionId: string;
-    userId: number;
-    createTime: number;
-    updateTime: number;
+  id: string;
+  language: string;
+  submitCode: string;
+  judgeInfo: JudgeInfo;
+  status: number;
+  questionId: string;
+  userId: number;
+  createTime: number;
+  updateTime: number;
 };
 

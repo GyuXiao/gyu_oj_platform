@@ -2,9 +2,10 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { QuestionSubmitVO } from './QuestionSubmitVO';
+import type { QuestionSubmitVO } from "./QuestionSubmitVO";
+
 export type QueryQuestionSubmitResp = {
-    questionSubmitList: Array<QuestionSubmitVO>;
-    totalNum: number;
+  questionSubmitList: Array<QuestionSubmitVO>;
+  totalNum: number;
 };
 
