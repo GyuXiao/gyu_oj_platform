@@ -55,7 +55,7 @@ func (l *QueryQuestionSubmitLogic) QueryQuestionSubmit(in *pb.QuestionSubmitList
 		whereCon = append(whereCon, do.QuestionSubmit.Where(do.QuestionSubmit.UserID.Eq(in.UserId)))
 	}
 	// 分页查询
-	questionSubmitList, totalCnt, err := do.QuestionSubmit.Where(whereCon...).Where(do.QuestionSubmit.Status.Eq(in.Status)).Order(orderCon).FindByPage(int(offset), int(limit))
+	questionSubmitList, totalCnt, err := do.QuestionSubmit.Where(whereCon...).Order(orderCon).FindByPage(int(offset), int(limit))
 	if err != nil {
 		return nil, xerr.NewErrCode(xerr.QueryQuestionSubmitError)
 	}

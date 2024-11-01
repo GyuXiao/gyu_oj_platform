@@ -2,7 +2,8 @@ package questionSubmit
 
 import (
 	"context"
-	"gyu-oj-backend/app/judge/cmd/rpc/judge"
+	"github.com/zeromicro/go-queue/rabbitmq"
+	"github.com/zeromicro/go-zero/core/logc"
 	"gyu-oj-backend/app/question/cmd/rpc/client/questionsubmit"
 	"gyu-oj-backend/app/user/cmd/rpc/client/user"
 	"gyu-oj-backend/common/xerr"
@@ -47,13 +48,34 @@ func (l *CreateQuestionSubmitLogic) CreateQuestionSubmit(req *types.CreateQuesti
 		return nil, err
 	}
 
-	// 3,调用判题服务
-	_, err = l.svcCtx.JudgeRpc.DoJudge(l.ctx, &judge.JudgeReq{
-		QuestionSubmitId: resp.Id,
-	})
+	// 3,向消息队列发送消息
+	err = l.SendMessage(resp.Id)
 	if err != nil {
 		return nil, err
 	}
 
 	return &types.CreateQuestionSubmitResp{Id: resp.Id}, nil
+}
+
+func (l *CreateQuestionSubmitLogic) SendMessage(questionSubmitId string) error {
+	if questionSubmitId == "" {
+		return xerr.NewErrCode(xerr.QuestionSubmitIdIsNilError)
+	}
+
+	conf := rabbitmq.RabbitSenderConf{RabbitConf: rabbitmq.RabbitConf{
+		Host:     l.svcCtx.Config.RabbitMq.Host,
+		Port:     l.svcCtx.Config.RabbitMq.Port,
+		Username: l.svcCtx.Config.RabbitMq.Username,
+		Password: l.svcCtx.Config.RabbitMq.Password,
+	}, ContentType: "text/plain"}
+
+	sender := rabbitmq.MustNewSender(conf)
+	message := questionSubmitId
+	err := sender.Send("oj_exchange", "oj_routingKey", []byte(message))
+
+	if err != nil {
+		logc.Infof(l.ctx, "向 RabbitMq 消息队列发消息错误: %v", err)
+		return err
+	}
+	return nil
 }

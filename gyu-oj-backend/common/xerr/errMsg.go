@@ -78,6 +78,7 @@ func init() {
 	mapCodMsg[QueryQuestionSubmitByIdError] = "根据 id 查询题目提交记录错误"
 	mapCodMsg[UpdateQuestionSubmitError] = "更新题目提交记录错误"
 	mapCodMsg[QuestionSubmitNotExistError] = "题目提交记录不存在"
+	mapCodMsg[QuestionSubmitIdIsNilError] = "题目提交 id 是 nil"
 
 	// sandbox
 	mapCodMsg[CompileFailError] = "编译代码错误"

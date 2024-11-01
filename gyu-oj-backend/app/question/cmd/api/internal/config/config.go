@@ -11,6 +11,12 @@ type Config struct {
 		AccessSecret string
 		AccessExpire int64
 	}
+	RabbitMq struct {
+		Host     string
+		Port     int
+		Username string
+		Password string
+	}
 	UserRpcConf     zrpc.RpcClientConf
 	QuestionRpcConf zrpc.RpcClientConf
 	JudgeRpcConf    zrpc.RpcClientConf

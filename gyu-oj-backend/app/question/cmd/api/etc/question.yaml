@@ -12,6 +12,12 @@ Log:
   ServiceName: question-api
   Level: info
 
+RabbitMq:
+  Host: localhost
+  Port: 5672
+  Username: guest
+  Password: guest
+
 # rpc service
 UserRpcConf:
   Etcd:

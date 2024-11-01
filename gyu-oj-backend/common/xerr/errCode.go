@@ -104,6 +104,7 @@ const (
 	QueryQuestionSubmitByIdError uint32 = 900003
 	UpdateQuestionSubmitError    uint32 = 900004
 	QuestionSubmitNotExistError  uint32 = 900005
+	QuestionSubmitIdIsNilError   uint32 = 900006
 )
 
 // sandbox

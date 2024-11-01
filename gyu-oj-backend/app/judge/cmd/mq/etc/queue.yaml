@@ -1,0 +1,17 @@
+Name: message-queue
+ListenOn: 0.0.0.0:3003
+Mode: dev
+
+ListenerConf:
+  Host: localhost
+  Port: 5672
+  Username: guest
+  Password: guest
+  ListenerQueues:
+    - Name: oj_queue
+
+JudgeRpcConf:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: judge-rpc
