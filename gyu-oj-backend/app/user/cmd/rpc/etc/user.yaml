@@ -2,11 +2,6 @@ Name: user-rpc
 ListenOn: 0.0.0.0:1002
 Mode: dev
 
-Etcd:
-  Hosts:
-    - 127.0.0.1:2379
-  Key: user-rpc
-
 DB:
   DataSource: root:2288.xzk@tcp(127.0.0.1:3306)/oj_db?charset=utf8mb4&parseTime=True&loc=Local
 

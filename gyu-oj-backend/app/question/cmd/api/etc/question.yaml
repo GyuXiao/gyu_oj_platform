@@ -20,19 +20,16 @@ RabbitMq:
 
 # rpc service
 UserRpcConf:
-  Etcd:
-    Hosts:
-      - 127.0.0.1:2379
-    Key: user-rpc
+  Endpoints:
+    - 127.0.0.1:1002
+  NonBlock: true
 
 QuestionRpcConf:
-  Etcd:
-    Hosts:
-      - 127.0.0.1:2379
-    Key: question-rpc
+  Endpoints:
+    - 127.0.0.1:2002
+  NonBlock: true
 
 JudgeRpcConf:
-  Etcd:
-    Hosts:
-      - 127.0.0.1:2379
-    Key: judge-rpc
+  Endpoints:
+    - 127.0.0.1:3002
+  NonBlock: true

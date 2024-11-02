@@ -11,7 +11,6 @@ ListenerConf:
     - Name: oj_queue
 
 JudgeRpcConf:
-  Etcd:
-    Hosts:
-      - 127.0.0.1:2379
-    Key: judge-rpc
+  Endpoints:
+    - 127.0.0.1:3002
+  NonBlock: true

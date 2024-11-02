@@ -27,5 +27,7 @@ func main() {
 	serviceGroup := service.NewServiceGroup()
 	serviceGroup.Add(listener)
 	defer serviceGroup.Stop()
+
+	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
 	serviceGroup.Start()
 }

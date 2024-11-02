@@ -3,11 +3,6 @@ ListenOn: 0.0.0.0:4002
 Timeout: 5000
 Mode: dev
 
-Etcd:
-  Hosts:
-  - 127.0.0.1:2379
-  Key: sandbox-rpc
-
 Log:
   ServiceName: sandbox-rpc
   Level: info
