@@ -80,6 +80,7 @@ import {
 import message from "@arco-design/web-vue/es/message";
 import MdViewer from "@/components/MdViewer.vue";
 import CodeEditor from "@/components/CodeEditor.vue";
+import { useRouter } from "vue-router";
 
 // 从跳转过来的页面传进来 id
 interface Props {
@@ -130,9 +131,20 @@ const doSubmitCode = async () => {
   });
   if (res.code === 200) {
     message.success("提交成功");
+    toQuestionSubmitViewPage();
   } else {
     message.error("提交失败," + res.msg);
   }
+};
+
+const router = useRouter();
+/**
+ * 跳转到题目提交页
+ */
+const toQuestionSubmitViewPage = () => {
+  router.push({
+    path: `/question_submit`,
+  });
 };
 
 const tagsColorsMap = new Map([

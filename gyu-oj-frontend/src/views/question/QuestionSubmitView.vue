@@ -80,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watchEffect } from "vue";
+import { onMounted, ref, onBeforeUnmount, watchEffect } from "vue";
 import {
   QueryQuestionSubmitReq,
   QuestionSubmitService,
@@ -162,14 +162,32 @@ const doSearch = () => {
   };
 };
 
+const refreshFlag = ref(false);
+// 设置定时器，每隔 3 秒执行一次 loadData
+const timer = setInterval(() => {
+  if (refreshFlag.value) {
+    loadData();
+    refreshFlag.value = false;
+  }
+}, 3000);
+
 onMounted(() => {
   loadData();
+});
+
+// 组件销毁时清除定时器
+onBeforeUnmount(() => {
+  clearInterval(timer);
 });
 
 /**
  * 监听列表参数的变化，然后加载最新的数据
  */
 watchEffect(() => {
+  // 更新 refreshFlag 的值
+  if (!refreshFlag.value) {
+    refreshFlag.value = true;
+  }
   loadData();
 });
 

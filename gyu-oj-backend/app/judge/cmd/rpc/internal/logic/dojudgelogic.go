@@ -55,10 +55,7 @@ func (l *DoJudgeLogic) DoJudge(in *pb.JudgeReq) (*pb.JudgeResp, error) {
 	}
 
 	// 3,更新判题（题目提交）的状态为 “判题中”，防止重复执行，也能让用户即时看到状态
-	_, err = l.svcCtx.QuestionSubmitRpc.UpdateQuestionSubmitById(l.ctx, &questionsubmit.QuestionSubmitUpdateReq{
-		Id:     in.QuestionSubmitId,
-		Status: enums.RUNNING,
-	})
+	err = l.updateQuestionSubmit(in.QuestionSubmitId, nil, enums.RUNNING)
 	if err != nil {
 		logc.Infof(l.ctx, "更新题目提交状态为 running 错误: %v", err)
 		return nil, err
@@ -80,6 +77,7 @@ func (l *DoJudgeLogic) DoJudge(in *pb.JudgeReq) (*pb.JudgeResp, error) {
 	})
 	if err != nil {
 		logc.Infof(l.ctx, "调用代码沙箱错误: %v", err)
+		_ = l.updateQuestionSubmit(in.QuestionSubmitId, nil, enums.FAILED)
 		return nil, err
 	}
 
@@ -99,16 +97,13 @@ func (l *DoJudgeLogic) DoJudge(in *pb.JudgeReq) (*pb.JudgeResp, error) {
 		return nil, err
 	}
 
-	// 6,修改数据库中的判题结果
-	_, err = l.svcCtx.QuestionSubmitRpc.UpdateQuestionSubmitById(l.ctx, &question.QuestionSubmitUpdateReq{
-		Id: in.QuestionSubmitId,
-		JudgeInfo: &pb2.JudgeInfo{
-			Message: resp.Message,
-			Time:    resp.Time,
-			Memory:  resp.Memory,
-		},
-		Status: enums.SUCCESS,
-	})
+	// 6,更新数据库中的判题结果
+	judgeInfo := &pb2.JudgeInfo{
+		Message: resp.Message,
+		Time:    resp.Time,
+		Memory:  resp.Memory,
+	}
+	err = l.updateQuestionSubmit(in.QuestionSubmitId, judgeInfo, enums.SUCCESS)
 	if err != nil {
 		logc.Infof(l.ctx, "更新题目提交信息错误: %v", err)
 		return nil, err
@@ -127,4 +122,20 @@ func (l *DoJudgeLogic) DoJudge(in *pb.JudgeReq) (*pb.JudgeResp, error) {
 		CreateTime:       time.Now().Unix(),
 		UpdateTime:       time.Now().Unix(),
 	}, nil
+}
+
+func (l *DoJudgeLogic) updateQuestionSubmit(id string, judgeInfo *pb2.JudgeInfo, status int64) error {
+	req := &question.QuestionSubmitUpdateReq{
+		Id:     id,
+		Status: status,
+	}
+	if judgeInfo != nil {
+		req.JudgeInfo = judgeInfo
+	}
+	_, err := l.svcCtx.QuestionSubmitRpc.UpdateQuestionSubmitById(l.ctx, req)
+
+	if err != nil {
+		return err
+	}
+	return nil
 }
