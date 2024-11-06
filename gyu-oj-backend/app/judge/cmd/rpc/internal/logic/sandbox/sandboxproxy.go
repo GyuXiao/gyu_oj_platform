@@ -15,7 +15,7 @@ func (sp *SandboxProxy) ExecuteCode(req *types.ExecuteCodeReq) (resp *types.Exec
 	logc.Info(ctx, req)
 	resp, err = sp.RealSandbox.ExecuteCode(req)
 	if err != nil {
-		logc.Error(ctx, err)
+		logc.Errorf(ctx, "调用代码沙箱执行代码错误, err: %v", err)
 	}
 	logc.Info(ctx, resp)
 	return

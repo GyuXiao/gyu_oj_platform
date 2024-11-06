@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"fmt"
 	"gyu-oj-backend/app/sandbox/cmd/rpc/internal/svc"
 	"gyu-oj-backend/app/sandbox/cmd/rpc/pb"
 
@@ -30,7 +29,6 @@ func (l *ExecuteCodeLogic) ExecuteCode(in *pb.ExecuteCodeReq) (*pb.ExecuteCodeRe
 	// 2,使用代码沙箱
 	resp, err := SandboxTemplate(sandboxByGoNative, in)
 	if err != nil {
-		fmt.Println("使用代码沙箱编译运行代码错误：", err)
 		return nil, err
 	}
 

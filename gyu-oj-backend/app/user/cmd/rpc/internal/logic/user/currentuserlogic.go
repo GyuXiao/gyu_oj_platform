@@ -2,6 +2,7 @@ package userlogic
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"gyu-oj-backend/app/user/models/token"
 	"gyu-oj-backend/common/constant"
 	"gyu-oj-backend/common/xerr"
@@ -33,15 +34,15 @@ func (l *CurrentUserLogic) CurrentUser(in *pb.CurrentUserReq) (*pb.CurrentUserRe
 	generateTokenLogic := NewGenerateTokenLogic(l.ctx, l.svcCtx)
 	claims, err := generateTokenLogic.ParseTokenByKey(in.AuthToken, l.svcCtx.Config.JwtAuth.AccessSecret)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "从 token 中解析 userId 发生错误, err: %+v", claims)
 	}
 	userId1 := claims[constant.KeyJwtUserId].(float64)
 
-	// 2，从 根据 token 从 redis 中拿到 userId2
+	// 2，根据 token 从 redis 中拿到 userId2
 	tokenLogic := token.NewDefaultTokenModel(l.svcCtx.RedisClient)
 	result, err := tokenLogic.CheckTokenExist(in.AuthToken)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "从缓存中解析 token 发生错误, err: %+v", result)
 	}
 	userIdStr, userRoleStr, username, avatarUrl := result[0], result[1], result[2], result[3]
 	userId2, err := strconv.Atoi(userIdStr)
@@ -55,7 +56,7 @@ func (l *CurrentUserLogic) CurrentUser(in *pb.CurrentUserReq) (*pb.CurrentUserRe
 
 	// 3，判断两者是否相同
 	if uint64(userId1) != uint64(userId2) {
-		return nil, xerr.NewErrCode(xerr.UserNotLoginError)
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.UserNotLoginError), "从 jwtToken 和缓存中取出来的 userId 不同, 说明用户未登录")
 	}
 
 	// 4，校验成功后，刷新 token

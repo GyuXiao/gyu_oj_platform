@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"gyu-oj-backend/app/user/cmd/rpc/client/user"
 	"strings"
 
@@ -29,7 +30,7 @@ func (l *CurrentLogic) Current(req *types.CurrentUserReq) (resp *types.CurrentUs
 	token := strings.Split(req.Authorization, " ")[1]
 	currentResp, err := l.svcCtx.UserRpc.CurrentUser(l.ctx, &user.CurrentUserReq{AuthToken: token})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "req: %+v", req)
 	}
 
 	return &types.CurrentUserResp{

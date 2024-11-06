@@ -24,6 +24,7 @@ func SandboxTemplate(c ExecuteCodeItf, param *pb.ExecuteCodeReq) (*pb.ExecuteCod
 	// 1，保存文件
 	userCodePath, err := c.SaveCodeToFile([]byte(param.Code))
 	if err != nil {
+		logc.Infof(ctx, "保存文件错误, err: %v", err)
 		resp.Status = enums.SystemError.GetStatus()
 		resp.Message = enums.SystemError.GetMsg()
 		return resp, err
@@ -42,6 +43,7 @@ func SandboxTemplate(c ExecuteCodeItf, param *pb.ExecuteCodeReq) (*pb.ExecuteCod
 	// 2，编译代码
 	err = c.CompileCode(userCodePath)
 	if err != nil {
+		logc.Infof(ctx, "编译文件错误: %v", err)
 		resp.Status = enums.CompileFail.GetStatus()
 		resp.Message = enums.CompileFail.GetMsg()
 		return resp, err
@@ -50,6 +52,7 @@ func SandboxTemplate(c ExecuteCodeItf, param *pb.ExecuteCodeReq) (*pb.ExecuteCod
 	// 3，运行代码
 	runResultList, err := c.RunCode(userCodePath, param.InputList)
 	if err != nil {
+		logc.Infof(ctx, "运行用户代码文件错误: %v", err)
 		causeErr := errors.Cause(err)
 		runCodeErr, _ := causeErr.(*xerr.CodeError)
 		if runCodeErr.GetErrCode() == xerr.RunTimeoutError {

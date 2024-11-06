@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"github.com/zeromicro/go-zero/core/logc"
 	"gyu-oj-backend/app/judge/cmd/rpc/internal/svc"
 	"gyu-oj-backend/app/judge/models/types"
 	"gyu-oj-backend/app/sandbox/cmd/rpc/codesandbox"
@@ -23,6 +24,7 @@ func (sb *RemoteSandbox) ExecuteCode(req *types.ExecuteCodeReq) (resp *types.Exe
 		Language:  req.Language,
 	})
 	if err != nil {
+		logc.Infof(context.Background(), "调用 sandbox-rpc 服务执行代码文件错误, err: %v", err)
 		return nil, err
 	}
 	return &types.ExecuteCodeResp{

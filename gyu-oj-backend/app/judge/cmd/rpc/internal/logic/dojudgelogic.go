@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
 	"gyu-oj-backend/app/judge/cmd/rpc/internal/logic/sandbox"
@@ -38,27 +39,27 @@ func (l *DoJudgeLogic) DoJudge(in *pb.JudgeReq) (*pb.JudgeResp, error) {
 	})
 	if err != nil {
 		logc.Infof(l.ctx, "根据 id 查询 questionSubmit 信息错误: %v", err)
-		return nil, err
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.QueryQuestionSubmitByIdError), "根据 id 查询 questionSubmit 错误, err: %v, questionSubmitId: %s", err, in.QuestionSubmitId)
 	}
 	questionResp, err := l.svcCtx.QuestionRpc.GetQuestionById(l.ctx, &question.QuestionGetByIdReq{
 		Id: questionSubmitResp.QuestionSubmitVO.QuestionId,
 	})
 	if err != nil {
 		logc.Infof(l.ctx, "根据 id 查询 question 信息错误: %v", err)
-		return nil, err
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.SearchQuestionByIdError), "根据 id 查询 question 错误, err: %v, questionId: %s", err, questionSubmitResp.QuestionSubmitVO.QuestionId)
 	}
 
 	// 2,如果题目提交状态不为等待中，直接返回
 	if questionSubmitResp.QuestionSubmitVO.Status != enums.WAITING {
 		logc.Info(l.ctx, "题目提交状态不是 waiting")
-		return nil, xerr.NewErrCodeMsg(xerr.ServerCommonError, "题目正在在判题中，请等待一下~")
+		return nil, errors.Wrapf(xerr.NewErrCodeMsg(xerr.ServerCommonError, "题目正在在判题中，请等待一下~"), "题目提交状态: %v", questionSubmitResp.QuestionSubmitVO.Status)
 	}
 
 	// 3,更新判题（题目提交）的状态为 “判题中”，防止重复执行，也能让用户即时看到状态
 	err = l.updateQuestionSubmit(in.QuestionSubmitId, nil, enums.RUNNING)
 	if err != nil {
 		logc.Infof(l.ctx, "更新题目提交状态为 running 错误: %v", err)
-		return nil, err
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.UpdateQuestionSubmitError), "更新题目提交状态错误")
 	}
 
 	// 4,调用沙箱，获取到执行结果
@@ -78,7 +79,7 @@ func (l *DoJudgeLogic) DoJudge(in *pb.JudgeReq) (*pb.JudgeResp, error) {
 	if err != nil {
 		logc.Infof(l.ctx, "调用代码沙箱错误: %v", err)
 		_ = l.updateQuestionSubmit(in.QuestionSubmitId, nil, enums.FAILED)
-		return nil, err
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.InvokeCodeSandboxError), "调用代码沙箱执行代码发生错误, err: %v", err)
 	}
 
 	// 5,根据沙箱的执行结果，设置题目的判题状态和信息
@@ -94,7 +95,7 @@ func (l *DoJudgeLogic) DoJudge(in *pb.JudgeReq) (*pb.JudgeResp, error) {
 	resp, err := manager.DoJudge(judgeContext)
 	if err != nil {
 		logc.Infof(l.ctx, "执行判题策略错误: %v", err)
-		return nil, err
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.ExecuteJudgeStrategyError), "执行判题策略错误, err: %v", err)
 	}
 
 	// 6,更新数据库中的判题结果
@@ -106,7 +107,7 @@ func (l *DoJudgeLogic) DoJudge(in *pb.JudgeReq) (*pb.JudgeResp, error) {
 	err = l.updateQuestionSubmit(in.QuestionSubmitId, judgeInfo, enums.SUCCESS)
 	if err != nil {
 		logc.Infof(l.ctx, "更新题目提交信息错误: %v", err)
-		return nil, err
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.UpdateQuestionSubmitError), "更新题目提交信息错误")
 	}
 
 	return &pb.JudgeResp{

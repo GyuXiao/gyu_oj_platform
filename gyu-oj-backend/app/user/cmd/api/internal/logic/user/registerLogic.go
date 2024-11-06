@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"gyu-oj-backend/app/user/cmd/rpc/client/user"
 	"gyu-oj-backend/common/constant"
 	"gyu-oj-backend/common/xerr"
@@ -30,11 +31,11 @@ func NewRegisterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Register
 func (l *RegisterLogic) Register(req *types.RegisterReq) (resp *types.RegisterResp, err error) {
 	// 校验参数
 	if req.Username == constant.BlankString || req.Password == constant.BlankString || len(req.Username) < constant.UsernameMinLen || len(req.Password) < constant.PasswordMinLen || req.Password != req.ConfirmPassword {
-		return nil, xerr.NewErrCodeMsg(xerr.RequestParamError, "用户名或密码错误")
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.RequestParamError), "用户名或密码错误")
 	}
 	_, err = regexp.MatchString(constant.PatternStr, req.Username)
 	if err != nil {
-		return nil, xerr.NewErrCodeMsg(xerr.RequestParamError, "用户名称包含非法字符")
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.RequestParamError), "用户名称包含非法字符")
 	}
 
 	registerResp, err := l.svcCtx.UserRpc.Register(l.ctx, &user.RegisterReq{
@@ -43,7 +44,7 @@ func (l *RegisterLogic) Register(req *types.RegisterReq) (resp *types.RegisterRe
 		ConfirmPassword: req.ConfirmPassword,
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "req: %+v", req)
 	}
 
 	// 注册成功，返回用户名

@@ -115,3 +115,9 @@ const (
 	RunOutOfMemoryError uint32 = 110004
 	SandboxError        uint32 = 110005
 )
+
+// judge
+const (
+	InvokeCodeSandboxError    uint32 = 120001
+	ExecuteJudgeStrategyError uint32 = 120002
+)

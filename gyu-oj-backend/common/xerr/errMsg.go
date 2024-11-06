@@ -87,6 +87,10 @@ func init() {
 	mapCodMsg[RunOutOfMemoryError] = "运行代码内存存储限制错误"
 	mapCodMsg[SandboxError] = "代码沙箱系统错误"
 
+	// judge
+	mapCodMsg[InvokeCodeSandboxError] = "调用代码沙箱错误"
+	mapCodMsg[ExecuteJudgeStrategyError] = "执行判题策略错误"
+
 }
 
 func GetMsgByCode(errCode uint32) string {

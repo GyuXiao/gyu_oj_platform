@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"gyu-oj-backend/app/user/cmd/rpc/client/user"
 	"strings"
 
@@ -29,7 +30,7 @@ func (l *LogoutLogic) Logout(req *types.LogoutReq) (resp *types.LogoutResp, err 
 	token := strings.Split(req.Authorization, " ")[1]
 	logoutResp, err := l.svcCtx.UserRpc.Logout(l.ctx, &user.LogoutReq{AuthToken: token})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "req: %+v", req)
 	}
 
 	return &types.LogoutResp{IsLogouted: logoutResp.IsLogouted}, nil

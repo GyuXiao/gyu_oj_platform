@@ -2,6 +2,7 @@ package userlogic
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"gyu-oj-backend/app/user/models/token"
 
 	"gyu-oj-backend/app/user/cmd/rpc/internal/svc"
@@ -28,7 +29,7 @@ func (l *LogoutLogic) Logout(in *pb.LogoutReq) (*pb.LogoutResp, error) {
 	tokenLogic := token.NewDefaultTokenModel(l.svcCtx.RedisClient)
 	err := tokenLogic.DeleteToken(in.AuthToken)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "删除 Token 时发生错误")
 	}
 	return &pb.LogoutResp{IsLogouted: true}, nil
 }

@@ -61,7 +61,7 @@ func NewSandboxByDocker(ctx context.Context, cli *client.Client) *SandboxByDocke
 func (g *SandboxByDocker) SaveCodeToFile(userCode []byte) (string, error) {
 	dir, err := os.Getwd()
 	if err != nil {
-		logc.Infof(ctx, "获取当前文件夹目录错误: ", err)
+		logc.Infof(ctx, "获取当前文件夹目录错误: %v", err)
 		return "", err
 	}
 	// 创建存放代码文件的目录文件
@@ -70,7 +70,7 @@ func (g *SandboxByDocker) SaveCodeToFile(userCode []byte) (string, error) {
 	if os.IsNotExist(err) {
 		err = os.Mkdir(path, os.ModePerm)
 		if err != nil {
-			logc.Infof(ctx, "创建存放用户代码文件夹错误: ", err)
+			logc.Infof(ctx, "创建存放总代码文件夹错误: %v", err)
 			return "", err
 		}
 	}
@@ -78,6 +78,7 @@ func (g *SandboxByDocker) SaveCodeToFile(userCode []byte) (string, error) {
 	singleCodeParentPath := fmt.Sprintf("%s/%s", path, tools.GetUUID())
 	err = os.Mkdir(singleCodeParentPath, os.ModePerm)
 	if err != nil {
+		logc.Infof(ctx, "创建存放用户代码的文件夹错误: %v", err)
 		return "", err
 	}
 	// 每个用户的代码的文件路径
@@ -133,6 +134,7 @@ func (g *SandboxByDocker) RunCode(userCodePath string, inputList []string) ([]*m
 	// 创建并启动容器
 	containerId, err := g.CreateAndStartContainer(RunGoImage, localToContainerVolume)
 	if err != nil {
+		logc.Infof(ctx, "创建并启动容器错误: ", err)
 		return nil, err
 	}
 	globalContainerID = containerId
@@ -346,6 +348,7 @@ func (g *SandboxByDocker) CreateAndStartContainer(image, volume string) (string,
 		containerName)
 	if err != nil {
 		logc.Infof(g.Ctx, "创建容器错误: %v", err)
+		return "", err
 	}
 
 	// 容器 ID
@@ -354,6 +357,7 @@ func (g *SandboxByDocker) CreateAndStartContainer(image, volume string) (string,
 	err = g.Cli.ContainerStart(g.Ctx, containerId, container.StartOptions{})
 	if err != nil {
 		logc.Infof(g.Ctx, "启动容器错误: %v", err)
+		return "", err
 	}
 
 	return containerId, nil

@@ -2,7 +2,7 @@ package userlogic
 
 import (
 	"context"
-	"errors"
+	"github.com/pkg/errors"
 	"gorm.io/gorm"
 	"gyu-oj-backend/app/user/models/do"
 	"gyu-oj-backend/app/user/models/token"
@@ -33,24 +33,24 @@ func (l *LoginLogic) Login(in *pb.LoginReq) (*pb.LoginResp, error) {
 	// 先通过 username 查询用户是否存在
 	user, err := do.User.Where(do.User.Username.Eq(in.Username)).First()
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, xerr.NewErrCode(xerr.SearchUserError)
+		return nil, errors.Wrapf(SearchUserByUsernameError, "通过 username 搜索 user 发生错误, err: %v", err)
 	}
 	// 如果用户不存在，登陆失败，返回
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, xerr.NewErrCode(xerr.UserNotExistError)
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.UserNotExistError), "该用户不存在, err: %v", err)
 	}
 
 	// 如果用户存在，再校验用户密码是否正确
 	err = checkUserPassword(user.Password, in.Password)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "用户密码错误")
 	}
 
 	// 用户名和密码都无误且用户存在，生成 jwt token
 	generateTokenLogic := NewGenerateTokenLogic(l.ctx, l.svcCtx)
 	tokenResp, err := generateTokenLogic.GenerateToken(&GenerateTokenReq{userId: uint64(user.ID)})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "生成 jwt-token 时发生错误, tokenResp: %+v", tokenResp)
 	}
 	// token 存入缓存
 	// key field value 的格式如下
@@ -58,7 +58,7 @@ func (l *LoginLogic) Login(in *pb.LoginReq) (*pb.LoginResp, error) {
 	tokenLogic := token.NewDefaultTokenModel(l.svcCtx.RedisClient)
 	err = tokenLogic.InsertToken(tokenResp.accessToken, uint64(user.ID), uint8(user.UserRole), user.Username, user.AvatarURL)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "将 token 存入缓存时发生错误")
 	}
 
 	// 登陆成功，返回用户 id，用户名，token，token 过期时间

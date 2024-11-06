@@ -27,7 +27,7 @@ func NewSandboxByGoNative() *SandboxByGoNative {
 func (g *SandboxByGoNative) SaveCodeToFile(userCode []byte) (string, error) {
 	dir, err := os.Getwd()
 	if err != nil {
-		logc.Infof(ctx, "获取当前文件夹目录错误: ", err)
+		logc.Infof(ctx, "获取当前文件夹目录错误: %v", err)
 		return "", err
 	}
 	// 创建存放代码文件的目录文件
@@ -36,7 +36,7 @@ func (g *SandboxByGoNative) SaveCodeToFile(userCode []byte) (string, error) {
 	if os.IsNotExist(err) {
 		err = os.Mkdir(path, os.ModePerm)
 		if err != nil {
-			logc.Infof(ctx, "创建存放用户代码文件夹错误: ", err)
+			logc.Infof(ctx, "创建存放总代码文件夹错误: %v", err)
 			return "", err
 		}
 	}
@@ -44,6 +44,7 @@ func (g *SandboxByGoNative) SaveCodeToFile(userCode []byte) (string, error) {
 	singleCodeParentPath := fmt.Sprintf("%s/%s", path, tools.GetUUID())
 	err = os.Mkdir(singleCodeParentPath, os.ModePerm)
 	if err != nil {
+		logc.Infof(ctx, "创建存放用户代码的文件夹错误: %v", err)
 		return "", err
 	}
 	// 每个用户的代码的文件路径
@@ -51,6 +52,7 @@ func (g *SandboxByGoNative) SaveCodeToFile(userCode []byte) (string, error) {
 	// 创建 main.go 文件
 	f, err := os.Create(codePath)
 	if err != nil {
+		logc.Infof(ctx, "创建用户代码文件失败: %v", err)
 		return "", err
 	}
 	// 写入代码
