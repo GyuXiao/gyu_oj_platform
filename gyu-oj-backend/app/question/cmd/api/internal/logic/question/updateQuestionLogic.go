@@ -61,7 +61,7 @@ func (l *UpdateQuestionLogic) UpdateQuestion(req *types.UpdateQuestionReq) (*typ
 		Content:     req.Content,
 		Tags:        req.Tags,
 		Answer:      req.Answer,
-		JudgeCases:  judgeCases,
+		JudgeCase:   judgeCases,
 		JudgeConfig: judgeConfig,
 	})
 	if err != nil {

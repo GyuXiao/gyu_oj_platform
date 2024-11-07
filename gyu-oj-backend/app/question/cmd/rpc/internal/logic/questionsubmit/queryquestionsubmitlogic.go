@@ -81,16 +81,35 @@ func (l *QueryQuestionSubmitLogic) fixList(questionSubmitList []*entity.Question
 			CreateTime: questionSubmit.CreateTime.Unix(),
 			UpdateTime: questionSubmit.UpdateTime.Unix(),
 		}
-		l.fixExtraFields(questionSubmit, &questionSubmitVO)
+		FieldsConvert(questionSubmit, &questionSubmitVO)
 		questionSubmitVOList[i] = &questionSubmitVO
 	}
 }
 
-func (l *QueryQuestionSubmitLogic) fixExtraFields(questionSubmit *entity.QuestionSubmit, questionSubmitVO *pb.QuestionSubmitVO) {
+func FieldsConvert(questionSubmit *entity.QuestionSubmit, questionSubmitVO *pb.QuestionSubmitVO) {
 	if questionSubmit.JudgeInfo != "" {
-		err := json.Unmarshal([]byte(questionSubmit.JudgeInfo), &questionSubmitVO.JudgeInfo)
+		var tmp struct {
+			Message string
+			Time    string
+			Memory  string
+		}
+		err := json.Unmarshal([]byte(questionSubmit.JudgeInfo), &tmp)
 		if err != nil {
-			logc.Infof(l.ctx, xerr.GetMsgByCode(xerr.JSONUnmarshalError))
+			logc.Infof(context.Background(), "jsonUnmarshal err: %v", err)
+		}
+
+		var time, memory = 0, 0
+		if tmp.Time != "" {
+			time, _ = strconv.Atoi(tmp.Time)
+		}
+		if tmp.Memory != "" {
+			memory, _ = strconv.Atoi(tmp.Memory)
+		}
+
+		questionSubmitVO.JudgeInfo = &pb.JudgeInfo{
+			Message: tmp.Message,
+			Time:    int64(time),
+			Memory:  int64(memory),
 		}
 	}
 }

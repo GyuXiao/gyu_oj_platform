@@ -2,9 +2,7 @@ package questionsubmitlogic
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"github.com/zeromicro/go-zero/core/logc"
 	"gorm.io/gorm"
 	"gyu-oj-backend/app/question/models/do"
 	"gyu-oj-backend/app/question/models/entity"
@@ -62,9 +60,6 @@ func (l *QueryQuestionSubmitByIdLogic) QueryQuestionSubmitById(in *pb.QuestionSu
 
 func (l *QueryQuestionSubmitByIdLogic) fixExtraFields(questionSubmit *entity.QuestionSubmit, questionSubmitVO *pb.QuestionSubmitVO) {
 	if questionSubmit.JudgeInfo != "" {
-		err := json.Unmarshal([]byte(questionSubmit.JudgeInfo), &questionSubmitVO.JudgeInfo)
-		if err != nil {
-			logc.Infof(l.ctx, xerr.GetMsgByCode(xerr.JSONUnmarshalError))
-		}
+		FieldsConvert(questionSubmit, questionSubmitVO)
 	}
 }

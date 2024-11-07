@@ -10,7 +10,7 @@ export type CreateQuestionReq = {
   content: string;
   tags: Array<string>;
   answer: string;
-  judgeCases: Array<JudgeCase>;
+  judgeCase: Array<JudgeCase>;
   judgeConfig: JudgeConfig;
 };
 

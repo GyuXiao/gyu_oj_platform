@@ -25,21 +25,24 @@
       </a-form-item>
       <a-form-item label="判题配置" :content-flex="false" :merge-props="false">
         <a-space direction="vertical" style="min-width: 640px">
-          <a-form-item field="judgeConfig.timeLimit" label="时间限制">
+          <a-form-item field="judgeConfig.timeLimit" label="时间限制（正整数）">
             <a-input-number
               v-model="form.judgeConfig.timeLimit"
               placeholder="请输入时间限制"
               mode="button"
-              min="0"
+              min="1"
               size="large"
             />
           </a-form-item>
-          <a-form-item field="judgeConfig.memoryLimit" label="内存限制">
+          <a-form-item
+            field="judgeConfig.memoryLimit"
+            label="内存限制（正整数）"
+          >
             <a-input-number
               v-model="form.judgeConfig.memoryLimit"
               placeholder="请输入内存限制"
               mode="button"
-              min="0"
+              min="1"
               size="large"
             />
           </a-form-item>
@@ -147,7 +150,7 @@ const loadData = async () => {
         },
       ];
     } else {
-      form.value.judgeCase = JSON.parse(form.value.judgeCase as any);
+      form.value.judgeCase = JSON.parse(form.value.judgeCase as never);
     }
     if (!form.value.judgeConfig) {
       form.value.judgeConfig = {
@@ -155,12 +158,10 @@ const loadData = async () => {
         timeLimit: 1000,
       };
     } else {
-      form.value.judgeConfig = JSON.parse(form.value.judgeConfig as any);
+      form.value.judgeConfig = JSON.parse(form.value.judgeConfig as never);
     }
     if (!form.value.tags) {
       form.value.tags = [];
-    } else {
-      form.value.tags = JSON.parse(form.value.tags as any);
     }
   } else {
     message.error("加载失败，" + res.msg);

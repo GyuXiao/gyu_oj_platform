@@ -47,7 +47,7 @@ message QuestionAddReq {
   string content = 2;
   repeated string tags = 3;
   string answer = 4;
-  repeated JudgeCase judgeCases = 5;
+  repeated JudgeCase judgeCase = 5;
   JudgeConfig judgeConfig = 6;
   int64 userId = 7;
 }
@@ -62,7 +62,7 @@ message QuestionUpdateReq {
   string content = 3;
   repeated string tags = 4;
   string answer = 5;
-  repeated JudgeCase judgeCases = 6;
+  repeated JudgeCase judgeCase = 6;
   JudgeConfig judgeConfig = 7;
 }
 message QuestionUpdateResp {

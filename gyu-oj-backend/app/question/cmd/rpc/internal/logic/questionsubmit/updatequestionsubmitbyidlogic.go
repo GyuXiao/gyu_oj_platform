@@ -48,7 +48,8 @@ func (l *UpdateQuestionSubmitByIdLogic) UpdateQuestionSubmitById(in *pb.Question
 func (l *UpdateQuestionSubmitByIdLogic) fixExtraFields(questionSubmit *entity.QuestionSubmit, in *pb.QuestionSubmitUpdateReq) {
 	if in.JudgeInfo != nil {
 		judgeInfo, err := protojson.MarshalOptions{
-			EmitUnpopulated: true,
+			EmitUnpopulated:   true,
+			EmitDefaultValues: true,
 		}.Marshal(in.JudgeInfo)
 		if err != nil {
 			logc.Infof(l.ctx, xerr.GetMsgByCode(xerr.JSONMarshalError))

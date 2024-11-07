@@ -70,7 +70,7 @@ func (l *CreateQuestionLogic) CreateQuestion(req *types.CreateQuestionReq) (*typ
 		Content:     req.Content,
 		Tags:        req.Tags,
 		Answer:      req.Answer,
-		JudgeCases:  judgeCases,
+		JudgeCase:   judgeCases,
 		JudgeConfig: judgeConfig,
 		UserId:      int64(currentUser.Id),
 	})
