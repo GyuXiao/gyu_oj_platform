@@ -28,7 +28,7 @@
           <a-form-item field="judgeConfig.timeLimit" label="时间限制（正整数）">
             <a-input-number
               v-model="form.judgeConfig.timeLimit"
-              placeholder="请输入时间限制"
+              placeholder="请输入时间限制（请务必保证大于 0，否则不能更新成功）"
               mode="button"
               min="1"
               size="large"
@@ -40,7 +40,7 @@
           >
             <a-input-number
               v-model="form.judgeConfig.memoryLimit"
-              placeholder="请输入内存限制"
+              placeholder="请输入内存限制（请务必保证大于 0，否则不能更新成功）"
               mode="button"
               min="1"
               size="large"

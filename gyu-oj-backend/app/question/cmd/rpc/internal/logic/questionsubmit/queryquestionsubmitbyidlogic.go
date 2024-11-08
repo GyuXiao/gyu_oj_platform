@@ -2,7 +2,7 @@ package questionsubmitlogic
 
 import (
 	"context"
-	"errors"
+	"github.com/pkg/errors"
 	"gorm.io/gorm"
 	"gyu-oj-backend/app/question/models/do"
 	"gyu-oj-backend/app/question/models/entity"
@@ -32,14 +32,14 @@ func NewQueryQuestionSubmitByIdLogic(ctx context.Context, svcCtx *svc.ServiceCon
 func (l *QueryQuestionSubmitByIdLogic) QueryQuestionSubmitById(in *pb.QuestionSubmitQueryByIdReq) (*pb.QuestionSubmitQueryByIdResp, error) {
 	id, err := strconv.Atoi(in.Id)
 	if err != nil {
-		return nil, xerr.NewErrCodeMsg(xerr.ParamFormatError, "QueryQuestionSubmitById 的请求参数 id: "+in.Id)
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.ParamFormatError), "格式转换错误, questionSubmitId: %s", in.Id)
 	}
 	questionSubmit, err := do.QuestionSubmit.Where(do.QuestionSubmit.ID.Eq(int64(id))).First()
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, xerr.NewErrCode(xerr.QuestionSubmitNotExistError)
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.QuestionSubmitNotExistError), "questionSubmit 记录不存在")
 	}
 	if err != nil {
-		return nil, xerr.NewErrCode(xerr.QueryQuestionSubmitByIdError)
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.QueryQuestionSubmitByIdError), "通过 id 查询 questionSubmit 错误, id: %s", in.Id)
 	}
 	questionSubmitVO := pb.QuestionSubmitVO{
 		// 必要参数

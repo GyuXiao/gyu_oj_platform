@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/jinzhu/copier"
+	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logc"
 	"gyu-oj-backend/app/question/cmd/rpc/client/question"
 	"gyu-oj-backend/app/question/cmd/rpc/pb"
@@ -42,7 +43,7 @@ func (l *QueryQuestionListLogic) QueryQuestionList(req *types.GetQuestionListReq
 		Tags:  req.Tags,
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "req: %+v", req)
 	}
 
 	var list []types.QuestionVO

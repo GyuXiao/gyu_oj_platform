@@ -3,6 +3,7 @@ package questionlogic
 import (
 	"context"
 	"encoding/json"
+	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
 	"gorm.io/gen"
@@ -55,7 +56,7 @@ func (l *ListQuestionByPageLogic) ListQuestionByPage(in *pb.QuestionListByPageRe
 	// 分页查找
 	questionList, totalCnt, err := do.Question.Where(whereCon...).Where(do.Question.IsDelete.Eq(0)).Order(orderCon).FindByPage(int(offset), int(limit))
 	if err != nil {
-		return nil, xerr.NewErrCode(xerr.SearchQuestionPageListError)
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.SearchQuestionPageListError), "分页查询 question 列表错误")
 	}
 
 	questionVOList := make([]*pb.QuestionVO, len(questionList))

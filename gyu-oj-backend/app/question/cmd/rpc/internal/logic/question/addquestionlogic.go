@@ -3,6 +3,7 @@ package questionlogic
 import (
 	"context"
 	"encoding/json"
+	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
 	"gyu-oj-backend/app/question/cmd/rpc/internal/svc"
@@ -42,7 +43,7 @@ func (l *AddQuestionLogic) AddQuestion(in *pb.QuestionAddReq) (*pb.QuestionAddRe
 	l.fixExtraFields(question, in)
 	err := do.Question.Create(question)
 	if err != nil {
-		return nil, xerr.NewErrCode(xerr.AddQuestionError)
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.AddQuestionError), "创建一个题目错误")
 	}
 
 	id := strconv.FormatInt(question.ID, 10)

@@ -2,6 +2,7 @@ package question
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"gyu-oj-backend/app/question/cmd/rpc/client/question"
 	"gyu-oj-backend/app/user/cmd/rpc/client/user"
 	"gyu-oj-backend/common/constant"
@@ -41,7 +42,7 @@ func (l *DeleteQuestionLogic) DeleteQuestion(req *types.DeleteQuestionReq) (*typ
 		Id: req.Id,
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "req: %+v", req)
 	}
 
 	return &types.DeleteQuestionResp{IsDeleted: resp.DeleteOK}, nil

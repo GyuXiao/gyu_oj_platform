@@ -3,6 +3,7 @@ package question
 import (
 	"context"
 	"github.com/jinzhu/copier"
+	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logc"
 	"gyu-oj-backend/app/question/cmd/rpc/client/question"
 	"gyu-oj-backend/app/user/cmd/rpc/client/user"
@@ -75,7 +76,7 @@ func (l *CreateQuestionLogic) CreateQuestion(req *types.CreateQuestionReq) (*typ
 		UserId:      int64(currentUser.Id),
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "req: %+v", req)
 	}
 
 	return &types.CreateQuestionResp{Id: resp.Id}, nil

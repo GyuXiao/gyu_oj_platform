@@ -3,6 +3,7 @@ package questionSubmit
 import (
 	"context"
 	"github.com/jinzhu/copier"
+	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logc"
 	"gyu-oj-backend/app/question/cmd/rpc/client/question"
 	"gyu-oj-backend/app/question/cmd/rpc/client/questionsubmit"
@@ -52,7 +53,7 @@ func (l *QueryQuestionSubmitListLogic) QueryQuestionSubmitList(req *types.QueryQ
 		UserId:     req.UserId,
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "req: %+v", req)
 	}
 
 	var questionSubmitList []types.QuestionSubmitVO

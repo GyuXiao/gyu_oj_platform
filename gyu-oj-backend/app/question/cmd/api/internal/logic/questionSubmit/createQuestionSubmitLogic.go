@@ -2,6 +2,7 @@ package questionSubmit
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"github.com/zeromicro/go-queue/rabbitmq"
 	"github.com/zeromicro/go-zero/core/logc"
 	"gyu-oj-backend/app/question/cmd/rpc/client/questionsubmit"
@@ -45,13 +46,13 @@ func (l *CreateQuestionSubmitLogic) CreateQuestionSubmit(req *types.CreateQuesti
 		UserId:     int64(currentUser.Id),
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "req: %+v", req)
 	}
 
 	// 3,向消息队列发送消息
 	err = l.SendMessage(resp.Id)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "发送消息错误，questionSubmitId: %s", resp.Id)
 	}
 
 	return &types.CreateQuestionSubmitResp{Id: resp.Id}, nil
@@ -75,7 +76,7 @@ func (l *CreateQuestionSubmitLogic) SendMessage(questionSubmitId string) error {
 
 	if err != nil {
 		logc.Infof(l.ctx, "向 RabbitMq 消息队列发消息错误: %v", err)
-		return err
+		return xerr.NewErrCode(xerr.SendMessageError)
 	}
 	return nil
 }

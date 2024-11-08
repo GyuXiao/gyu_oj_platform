@@ -2,6 +2,7 @@ package questionsubmitlogic
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"gyu-oj-backend/app/question/cmd/rpc/internal/svc"
 	"gyu-oj-backend/app/question/cmd/rpc/pb"
 	"gyu-oj-backend/app/question/models/do"
@@ -31,7 +32,7 @@ func NewDoQuestionSubmitLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 func (l *DoQuestionSubmitLogic) DoQuestionSubmit(in *pb.QuestionSubmitAddReq) (*pb.QuestionSubmitAddResp, error) {
 	questionId, err := strconv.Atoi(in.QuestionId)
 	if err != nil {
-		return nil, xerr.NewErrCodeMsg(xerr.ParamFormatError, "QuestionSubmitAddReq 的请求参数 questionId: "+in.QuestionId)
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.ParamFormatError), "格式转换错误, questionId: %s", in.QuestionId)
 	}
 
 	questionSubmit := &entity.QuestionSubmit{
@@ -45,7 +46,7 @@ func (l *DoQuestionSubmitLogic) DoQuestionSubmit(in *pb.QuestionSubmitAddReq) (*
 	}
 	err = do.QuestionSubmit.Create(questionSubmit)
 	if err != nil {
-		return nil, xerr.NewErrCode(xerr.CreateQuestionSubmitError)
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.CreateQuestionSubmitError), "创建题目提交记录时发生错误, questionId: %s, userId: %v", in.QuestionId, in.UserId)
 	}
 
 	id := strconv.FormatInt(questionSubmit.ID, 10)

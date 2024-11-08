@@ -3,6 +3,7 @@ package questionlogic
 import (
 	"context"
 	"encoding/json"
+	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logc"
 	"gyu-oj-backend/app/question/cmd/rpc/internal/svc"
 	"gyu-oj-backend/app/question/cmd/rpc/pb"
@@ -35,12 +36,12 @@ func (l *UpdateQuestionLogic) UpdateQuestion(in *pb.QuestionUpdateReq) (*pb.Ques
 
 	id, err := strconv.Atoi(in.Id)
 	if err != nil {
-		return nil, xerr.NewErrCodeMsg(xerr.ParamFormatError, "QuestionUpdateReq 的请求参数 id: "+in.Id)
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.ParamFormatError), "格式错误, questionId: %s", in.Id)
 	}
 
 	_, err = do.Question.Where(do.Question.ID.Eq(int64(id))).Updates(&question)
 	if err != nil {
-		return nil, xerr.NewErrCode(xerr.UpdateQuestionError)
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.UpdateQuestionError), "update question 时发生错误")
 	}
 
 	return &pb.QuestionUpdateResp{UpdateOK: true}, nil

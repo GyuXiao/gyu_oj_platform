@@ -3,6 +3,7 @@ package question
 import (
 	"context"
 	"github.com/jinzhu/copier"
+	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logc"
 	"gyu-oj-backend/app/question/cmd/rpc/client/question"
 	"gyu-oj-backend/app/user/cmd/rpc/client/user"
@@ -65,7 +66,7 @@ func (l *UpdateQuestionLogic) UpdateQuestion(req *types.UpdateQuestionReq) (*typ
 		JudgeConfig: judgeConfig,
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "req: %+v", req)
 	}
 
 	return &types.UpdateQuestionResp{IsUpdated: resp.UpdateOK}, nil

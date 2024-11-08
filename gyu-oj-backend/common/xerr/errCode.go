@@ -121,3 +121,8 @@ const (
 	InvokeCodeSandboxError    uint32 = 120001
 	ExecuteJudgeStrategyError uint32 = 120002
 )
+
+// mq
+const (
+	SendMessageError uint32 = 130001
+)

@@ -3,6 +3,7 @@ package question
 import (
 	"context"
 	"encoding/json"
+	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logc"
 	"gyu-oj-backend/app/question/cmd/api/internal/svc"
 	"gyu-oj-backend/app/question/cmd/api/internal/types"
@@ -37,7 +38,7 @@ func (l *QueryQuestionLogic) QueryQuestion(req *types.GetQuestionReq) (*types.Ge
 	// 调用 rpc 模块根据 id 获取 question
 	resp, err := l.svcCtx.QuestionRpc.GetQuestionById(l.ctx, &question.QuestionGetByIdReq{Id: req.Id})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "req: %+v", req)
 	}
 
 	var questionVO types.QuestionVO

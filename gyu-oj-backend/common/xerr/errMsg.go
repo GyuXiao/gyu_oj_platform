@@ -91,6 +91,9 @@ func init() {
 	mapCodMsg[InvokeCodeSandboxError] = "调用代码沙箱错误"
 	mapCodMsg[ExecuteJudgeStrategyError] = "执行判题策略错误"
 
+	// mq
+	mapCodMsg[SendMessageError] = "向消息队列发送消息错误"
+
 }
 
 func GetMsgByCode(errCode uint32) string {

@@ -2,6 +2,7 @@ package questionsubmitlogic
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logc"
 	"google.golang.org/protobuf/encoding/protojson"
 	"gyu-oj-backend/app/question/models/do"
@@ -32,14 +33,14 @@ func NewUpdateQuestionSubmitByIdLogic(ctx context.Context, svcCtx *svc.ServiceCo
 func (l *UpdateQuestionSubmitByIdLogic) UpdateQuestionSubmitById(in *pb.QuestionSubmitUpdateReq) (*pb.QuestionSubmitUpdateResp, error) {
 	id, err := strconv.Atoi(in.Id)
 	if err != nil {
-		return nil, xerr.NewErrCodeMsg(xerr.ParamFormatError, "UpdateQuestionSubmitById 的请求参数 id: "+in.Id)
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.ParamFormatError), "格式错误, questionSubmitId: %s", in.Id)
 	}
 
 	questionSubmit := &entity.QuestionSubmit{}
 	l.fixExtraFields(questionSubmit, in)
 	_, err = do.QuestionSubmit.Where(do.QuestionSubmit.ID.Eq(int64(id))).Updates(&questionSubmit)
 	if err != nil {
-		return nil, xerr.NewErrCode(xerr.UpdateQuestionSubmitError)
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.UpdateQuestionSubmitError), "通过 id 更新 questionSubmit 错误, id: %s", in.Id)
 	}
 
 	return &pb.QuestionSubmitUpdateResp{UpdateOK: true}, nil

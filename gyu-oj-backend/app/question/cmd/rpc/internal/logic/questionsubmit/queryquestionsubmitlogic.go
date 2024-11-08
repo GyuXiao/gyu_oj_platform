@@ -3,6 +3,7 @@ package questionsubmitlogic
 import (
 	"context"
 	"encoding/json"
+	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logc"
 	"gorm.io/gen"
 	"gyu-oj-backend/app/question/models/do"
@@ -57,7 +58,7 @@ func (l *QueryQuestionSubmitLogic) QueryQuestionSubmit(in *pb.QuestionSubmitList
 	// 分页查询
 	questionSubmitList, totalCnt, err := do.QuestionSubmit.Where(whereCon...).Order(orderCon).FindByPage(int(offset), int(limit))
 	if err != nil {
-		return nil, xerr.NewErrCode(xerr.QueryQuestionSubmitError)
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.QueryQuestionSubmitError), "分页查询 questionSubmit 错误")
 	}
 
 	questionSubmitVOList := make([]*pb.QuestionSubmitVO, totalCnt)

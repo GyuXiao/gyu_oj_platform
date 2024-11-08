@@ -3,7 +3,7 @@ package questionlogic
 import (
 	"context"
 	"encoding/json"
-	"errors"
+	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
 	"gorm.io/gorm"
@@ -33,15 +33,15 @@ func NewGetQuestionByIdLogic(ctx context.Context, svcCtx *svc.ServiceContext) *G
 func (l *GetQuestionByIdLogic) GetQuestionById(in *pb.QuestionGetByIdReq) (*pb.QuestionGetByIdResp, error) {
 	id, err := strconv.Atoi(in.Id)
 	if err != nil {
-		return nil, xerr.NewErrCodeMsg(xerr.ParamFormatError, "QuestionGetById 的请求参数 id: "+in.Id)
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.ParamFormatError), "格式错误, questionId: %s", in.Id)
 	}
 
 	question, err := do.Question.Where(do.Question.ID.Eq(int64(id))).First()
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, xerr.NewErrCode(xerr.QuestionNotExistError)
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.QuestionNotExistError), "question 记录不存在")
 	}
 	if err != nil {
-		return nil, xerr.NewErrCode(xerr.SearchQuestionByIdError)
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.SearchQuestionByIdError), "通过 id 查询 question 错误, id: %s", in.Id)
 	}
 	questionVO := pb.QuestionVO{
 		// 必要参数
