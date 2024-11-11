@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  gyu_oj_service:
+    image: gyu/gyu_oj_service:v1.22.0
+    container_name: gyu_oj_service
+    environment:
+      # 时区上海 - Timezone Shanghai
+      TZ: Asia/Shanghai
+      GOPROXY: https://goproxy.cn,direct
+    working_dir: /go/gyu_oj_service
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/go/gyu_oj_service
+    restart: always
+    networks:
+      - gyu_oj_net
+
+networks:
+  gyu_oj_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
