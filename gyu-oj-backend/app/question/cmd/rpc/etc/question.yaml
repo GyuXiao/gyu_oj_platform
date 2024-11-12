@@ -7,7 +7,7 @@ JwtAuth:
   AccessExpire: 604800 # 一周
 
 DB:
-  DataSource: root:2288.xzk@tcp(127.0.0.1:3306)/oj_db?charset=utf8mb4&parseTime=True&loc=Local
+  DataSource: root:2288.xzk@tcp(mysql:3306)/oj_db?charset=utf8mb4&parseTime=True&loc=Asia%2FShanghai
 
 Log:
   ServiceName: question-rpc

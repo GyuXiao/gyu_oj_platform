@@ -2,17 +2,18 @@ version: '3'
 
 services:
   gyu_oj_service:
-    image: gyu/gyu_oj_service:v1.22.0
+    image: gyu_oj_service:v1.22.0
     container_name: gyu_oj_service
     environment:
       # 时区上海 - Timezone Shanghai
       TZ: Asia/Shanghai
       GOPROXY: https://goproxy.cn,direct
-    working_dir: /go/gyu_oj_service
+    working_dir: /going/gyu_oj_service
     ports:
       - "8080:8080"
+      - "1001:1001" # user 模块的 api 服务端口
     volumes:
-      - .:/go/gyu_oj_service
+      - .:/going/gyu_oj_service
     restart: always
     networks:
       - gyu_oj_net

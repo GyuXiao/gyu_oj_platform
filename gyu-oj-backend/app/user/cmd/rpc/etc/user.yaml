@@ -3,11 +3,11 @@ ListenOn: 0.0.0.0:1002
 Mode: dev
 
 DB:
-  DataSource: root:2288.xzk@tcp(127.0.0.1:3306)/oj_db?charset=utf8mb4&parseTime=True&loc=Local
+  DataSource: root:2288.xzk@tcp(mysql:3306)/oj_db?charset=utf8mb4&parseTime=True&loc=Asia%2FShanghai
 
 Redis:
-  Host: 127.0.0.1:6379
-  Pass:
+  Host: redis:6379
+  Pass: 2288.xzk
   Type: node
   Key: user-rpc
 

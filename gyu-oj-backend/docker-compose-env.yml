@@ -147,7 +147,6 @@ services:
 #    networks:
 #      - gyu_oj_net
 
-  # 待改为 RabbitMQ
   #消息队列 - Message queue
 #  kafka:
 #    image: wurstmeister/kafka
@@ -182,6 +181,25 @@ services:
 #    depends_on:
 #      - redis
 
+  rabbitmq:
+    image: rabbitmq:3.12.13-management
+    container_name: rabbitmq_3_12_13
+    restart: always
+    # 节点名 rabbit@rabbit_server，不然会去容器ID
+    hostname: rabbit_server
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      TZ: Asia/Shanghai
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    volumes:
+      - ./data:/var/lib/rabbitmq
+      - ./conf:/etc/rabbitmq
+    networks:
+      - gyu_oj_net
+
   mysql:
     image: mysql/mysql-server:8.0.28
     container_name: mysql
@@ -189,17 +207,18 @@ services:
       # 时区上海 - Time zone Shanghai (Change if needed)
       TZ: Asia/Shanghai
       # root 密码 - root password
-      MYSQL_ROOT_PASSWORD: MySQL_password
+      MYSQL_ROOT_PASSWORD: mysql_password
     ports:
       - 33069:3306
     volumes:
       # 数据挂载 - Data mounting
-      - ./data/mysql/data:/var/lib/mysql
+      - /data/mysql/data:/var/lib/mysql
       # 日志
+      - /data/mysql/logs:/var/log/mysql
     command:
       # 将mysql8.0默认密码策略 修改为 原先 策略 (mysql8.0对其默认策略做了更改 会导致密码无法匹配)
       # Modify the Mysql 8.0 default password strategy to the original strategy (MySQL8.0 to change its default strategy will cause the password to be unable to match)
-      --default-authentication-plugin=mysql_native_password
+      --authentication-policy=mysql_native_password
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_general_ci
       --explicit_defaults_for_timestamp=true
@@ -221,7 +240,7 @@ services:
     volumes:
       # 数据文件 - data files
       - ./data/redis/data:/data:rw
-    command: "redis-server --requirepass G62m50oigInC30sf  --appendonly yes"
+    command: "redis-server --requirepass redis_password  --appendonly yes"
     privileged: true
     restart: always
     networks:

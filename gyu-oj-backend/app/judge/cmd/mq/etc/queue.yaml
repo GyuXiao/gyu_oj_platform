@@ -3,10 +3,10 @@ ListenOn: 0.0.0.0:3003
 Mode: dev
 
 ListenerConf:
-  Host: localhost
+  Host: rabbitmq
   Port: 5672
-  Username: guest
-  Password: guest
+  Username: admin
+  Password: admin
   ListenerQueues:
     - Name: oj_queue
 
