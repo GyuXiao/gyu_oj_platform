@@ -1,4 +1,3 @@
-# 本文件不应该进入版本控制管理
 Name: question-api
 Host: 0.0.0.0
 Port: 2001
@@ -13,10 +12,10 @@ Log:
   Level: info
 
 RabbitMq:
-  Host: localhost
+  Host: rabbitmq
   Port: 5672
-  Username: guest
-  Password: guest
+  Username: admin
+  Password: admin
 
 # rpc service
 UserRpcConf:

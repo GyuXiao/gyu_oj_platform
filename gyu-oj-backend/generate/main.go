@@ -10,7 +10,7 @@ import (
 
 var (
 	// 根据本地环境，配置 username，password，dbName，host，port
-	dsn = "root:2288.xzk@tcp(127.0.0.1:3306)/oj_db?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn = "root:mysql_password@tcp(127.0.0.1:3306)/oj_db?charset=utf8mb4&parseTime=True&loc=Local"
 	// curd 代码的输出路径
 	outPath = "./generate/do"
 	// entity 代码的输出路径

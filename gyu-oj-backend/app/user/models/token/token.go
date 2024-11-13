@@ -90,9 +90,9 @@ func (rds *defaultTokenModel) RefreshToken(token string) {
 
 func (rds *defaultTokenModel) DeleteToken(token string) error {
 	key := constant.TokenPrefixStr + token
-	_, err := rds.HdelCtx(ctx, key, constant.KeyUserId, constant.KeyUserRole)
+	_, err := rds.HdelCtx(ctx, key, constant.KeyUserId, constant.KeyUserRole, constant.KeyUsername, constant.KeyAvatarUrl)
 	if err != nil {
-		logc.Infof(ctx, "redis HMGet key err: %v", err)
+		logc.Infof(ctx, "redis HDel key err: %v", err)
 		return xerr.NewErrCode(xerr.KeyDelError)
 	}
 	return nil

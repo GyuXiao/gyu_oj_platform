@@ -1,13 +1,15 @@
+# 本地调试代码前，记得更新 DB 和 Redis 的密码
+
 Name: user-rpc
 ListenOn: 0.0.0.0:1002
 Mode: dev
 
 DB:
-  DataSource: root:2288.xzk@tcp(mysql:3306)/oj_db?charset=utf8mb4&parseTime=True&loc=Asia%2FShanghai
+  DataSource: root:mysql_password@tcp(mysql:3306)/oj_db?charset=utf8mb4&parseTime=True&loc=Asia%2FShanghai
 
 Redis:
   Host: redis:6379
-  Pass: 2288.xzk
+  Pass: redis_password
   Type: node
   Key: user-rpc
 
