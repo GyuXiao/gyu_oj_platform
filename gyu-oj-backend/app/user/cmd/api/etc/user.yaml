@@ -3,6 +3,19 @@ Name: user-api
 Host: 0.0.0.0
 Port: 1001
 
+#Monitoring
+Prometheus:
+  Host: 0.0.0.0
+  Port: 4001
+  Path: /metrics
+
+#链路追踪
+Telemetry:
+  Name: user-api
+  Endpoint: http://jaeger:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
 #jwtAuth
 Auth:
   AccessSecret: ae0536f9-6450-4606-8e13-5a19ed505da0
@@ -14,5 +27,5 @@ Log:
 
 UserRpcConf:
   Endpoints:
-    - 127.0.0.1:1002
+    - 127.0.0.1:2001
   NonBlock: true

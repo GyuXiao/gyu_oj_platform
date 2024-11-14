@@ -1,7 +1,20 @@
 Name: sandbox-rpc
-ListenOn: 0.0.0.0:4002
+ListenOn: 0.0.0.0:2004
 Timeout: 5000
 Mode: dev
+
+#Monitoring
+Prometheus:
+  Host: 0.0.0.0
+  Port: 4007
+  Path: /metrics
+
+#链路追踪
+Telemetry:
+  Name: sandbox-rpc
+  Endpoint: http://jaeger:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
 
 Log:
   ServiceName: sandbox-rpc

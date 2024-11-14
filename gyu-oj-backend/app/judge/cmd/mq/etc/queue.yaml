@@ -2,6 +2,19 @@ Name: message-queue
 ListenOn: 0.0.0.0:3003
 Mode: dev
 
+#Monitoring
+Prometheus:
+  Host: 0.0.0.0
+  Port: 4006
+  Path: /metrics
+
+#链路追踪
+Telemetry:
+  Name: message-queue
+  Endpoint: http://jaeger:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
 ListenerConf:
   Host: rabbitmq
   Port: 5672
@@ -12,5 +25,5 @@ ListenerConf:
 
 JudgeRpcConf:
   Endpoints:
-    - 127.0.0.1:3002
+    - 127.0.0.1:2003
   NonBlock: true

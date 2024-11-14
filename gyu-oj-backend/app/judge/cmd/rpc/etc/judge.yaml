@@ -1,6 +1,19 @@
 Name: judge-rpc
-ListenOn: 0.0.0.0:3002
+ListenOn: 0.0.0.0:2003
 Mode: dev
+
+#Monitoring
+Prometheus:
+  Host: 0.0.0.0
+  Port: 4005
+  Path: /metrics
+
+#链路追踪
+Telemetry:
+  Name: judge-rpc
+  Endpoint: http://jaeger:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
 
 JwtAuth:
   AccessSecret: ae0536f9-6450-4606-8e13-5a19ed505da0
@@ -13,13 +26,12 @@ QuestionRpcConf:
 
 SandboxRpcConf:
   Endpoints:
-    - 127.0.0.1:4002
+    - 127.0.0.1:2004
   NonBlock: true
 
 Log:
   ServiceName: judge-rpc
   Level: info
-
 
 CodeSandbox:
   Type: remote

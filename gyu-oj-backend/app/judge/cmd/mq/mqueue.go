@@ -19,6 +19,10 @@ func main() {
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
 
+	if err := c.SetUp(); err != nil {
+		panic(err)
+	}
+
 	fmt.Printf("Starting RabbitMq server at %v \n", c.ListenerConf.Port)
 	err := InitRabbitMq(c)
 	if err != nil {
