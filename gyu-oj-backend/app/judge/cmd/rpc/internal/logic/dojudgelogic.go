@@ -77,9 +77,11 @@ func (l *DoJudgeLogic) DoJudge(in *pb.JudgeReq) (*pb.JudgeResp, error) {
 		Language:  questionSubmitResp.QuestionSubmitVO.Language,
 	})
 	if err != nil {
-		logc.Infof(l.ctx, "调用代码沙箱错误: %v", err)
-		_ = l.updateQuestionSubmit(in.QuestionSubmitId, nil, enums.FAILED)
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.InvokeCodeSandboxError), "调用代码沙箱执行代码发生错误, err: %v", err)
+		logc.Infof(l.ctx, "代码沙箱内部执行代码错误: %v", err)
+		updateErr := l.updateQuestionSubmit(in.QuestionSubmitId, &pb2.JudgeInfo{Message: enums.SystemError}, enums.FAILED)
+		logc.Infof(l.ctx, "更新题目提交状态时发生错误: %v", updateErr)
+
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.InvokeCodeSandboxError), "代码沙箱内部执行代码发生错误, err: %v", err)
 	}
 
 	// 5,根据沙箱的执行结果，设置题目的判题状态和信息

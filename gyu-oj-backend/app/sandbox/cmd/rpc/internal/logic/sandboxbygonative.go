@@ -2,6 +2,7 @@ package logic
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logc"
 	"gyu-oj-backend/app/sandbox/cmd/rpc/pb"
@@ -18,16 +19,19 @@ import (
 )
 
 type SandboxByGoNative struct {
+	Ctx context.Context
 }
 
-func NewSandboxByGoNative() *SandboxByGoNative {
-	return &SandboxByGoNative{}
+func NewSandboxByGoNative(ctx context.Context) *SandboxByGoNative {
+	return &SandboxByGoNative{
+		Ctx: ctx,
+	}
 }
 
 func (g *SandboxByGoNative) SaveCodeToFile(userCode []byte) (string, error) {
 	dir, err := os.Getwd()
 	if err != nil {
-		logc.Infof(ctx, "获取当前文件夹目录错误: %v", err)
+		logc.Infof(g.Ctx, "获取当前文件夹目录错误: %v", err)
 		return "", err
 	}
 	// 创建存放代码文件的目录文件
@@ -36,7 +40,7 @@ func (g *SandboxByGoNative) SaveCodeToFile(userCode []byte) (string, error) {
 	if os.IsNotExist(err) {
 		err = os.Mkdir(path, os.ModePerm)
 		if err != nil {
-			logc.Infof(ctx, "创建存放总代码文件夹错误: %v", err)
+			logc.Infof(g.Ctx, "创建存放总代码文件夹错误: %v", err)
 			return "", err
 		}
 	}
@@ -44,7 +48,7 @@ func (g *SandboxByGoNative) SaveCodeToFile(userCode []byte) (string, error) {
 	singleCodeParentPath := fmt.Sprintf("%s/%s", path, tools.GetUUID())
 	err = os.Mkdir(singleCodeParentPath, os.ModePerm)
 	if err != nil {
-		logc.Infof(ctx, "创建存放用户代码的文件夹错误: %v", err)
+		logc.Infof(g.Ctx, "创建存放用户代码的文件夹错误: %v", err)
 		return "", err
 	}
 	// 每个用户的代码的文件路径
@@ -52,7 +56,7 @@ func (g *SandboxByGoNative) SaveCodeToFile(userCode []byte) (string, error) {
 	// 创建 main.go 文件
 	f, err := os.Create(codePath)
 	if err != nil {
-		logc.Infof(ctx, "创建用户代码文件失败: %v", err)
+		logc.Infof(g.Ctx, "创建用户代码文件失败: %v", err)
 		return "", err
 	}
 	// 写入代码
@@ -69,7 +73,7 @@ func (g *SandboxByGoNative) CompileCode(userCodePath string) error {
 
 	parentPath := filepath.Dir(userCodePath)
 	compileCmdStr := fmt.Sprintf("go build -o %s/%s %s", parentPath, GoBinaryFileName, userCodePath)
-	logc.Infof(ctx, "编译命令: %v", compileCmdStr)
+	logc.Infof(g.Ctx, "编译命令: %v", compileCmdStr)
 
 	compileParts := strings.Split(compileCmdStr, " ")
 	compileCmd := exec.Command(compileParts[0], compileParts[1:]...)
@@ -79,18 +83,18 @@ func (g *SandboxByGoNative) CompileCode(userCodePath string) error {
 	// 编译成功的话，将得到可执行文件
 	err := compileCmd.Run()
 	if err != nil {
-		logc.Infof(ctx, "编译失败: %v", err)
+		logc.Infof(g.Ctx, "编译失败: %v", err)
 		return xerr.NewErrCode(xerr.CompileFailError)
 	}
 	// 修改可执行文件的文件权限
 	compileFilePath := fmt.Sprintf("%s/%s", parentPath, GoBinaryFileName)
 	err = os.Chmod(compileFilePath, os.ModePerm)
 	if err != nil {
-		logc.Infof(ctx, "修改可执行文件的权限失败: %v", err)
+		logc.Infof(g.Ctx, "修改可执行文件的权限失败: %v", err)
 		return err
 	}
 
-	logc.Infof(ctx, "编译成功: %v", out.String())
+	logc.Infof(g.Ctx, "编译成功: %v", out.String())
 	return nil
 }
 
@@ -105,7 +109,7 @@ func (g *SandboxByGoNative) RunCode(userCodePath string, inputList []string) ([]
 	executeResult := make([]*models.ExecResult, len(inputList))
 	go func() {
 		for i, input := range inputList {
-			res, err := doRun(input, runCmdStr)
+			res, err := doRun(g.Ctx, input, runCmdStr)
 			if err != nil {
 				done <- err
 				return
@@ -128,7 +132,7 @@ func (g *SandboxByGoNative) RunCode(userCodePath string, inputList []string) ([]
 	}
 }
 
-func doRun(input string, runCmdStr string) (*models.ExecResult, error) {
+func doRun(ctx context.Context, input string, runCmdStr string) (*models.ExecResult, error) {
 	input = strings.TrimSpace(input)
 
 	runCmd := &exec.Cmd{}
@@ -148,6 +152,7 @@ func doRun(input string, runCmdStr string) (*models.ExecResult, error) {
 	// 执行代码
 	err := runCmd.Run()
 	if err != nil {
+		logc.Infof(ctx, "运行代码失败: %v", err)
 		return nil, xerr.NewErrCode(xerr.RunFailError)
 	}
 

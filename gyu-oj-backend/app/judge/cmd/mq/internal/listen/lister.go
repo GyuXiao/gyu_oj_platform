@@ -34,13 +34,16 @@ func (h Handler) Consume(message string) error {
 		return errors.Wrapf(xerr.NewErrCode(xerr.QuestionSubmitIdIsNilError), "questionSubmitId: %s", questionSubmitId)
 	}
 
-	_, err := h.SvcCtx.JudgeRpc.DoJudge(h.Ctx, &judge.JudgeReq{
+	resp, err := h.SvcCtx.JudgeRpc.DoJudge(h.Ctx, &judge.JudgeReq{
 		QuestionSubmitId: questionSubmitId,
 	})
 	if err != nil {
 		logc.Infof(h.Ctx, "调用 judge-rpc 服务时发生错误, err: %v", err)
 		return err
 	}
+
+	// 判题信息
+	logc.Infof(h.Ctx, "questionSubmitId: %s, 判题结果: %+v", questionSubmitId, resp)
 
 	return nil
 }

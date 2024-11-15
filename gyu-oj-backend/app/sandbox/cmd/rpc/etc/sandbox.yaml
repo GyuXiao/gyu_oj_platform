@@ -19,3 +19,7 @@ Telemetry:
 Log:
   ServiceName: sandbox-rpc
   Level: info
+
+# golang or docker
+SandboxBy:
+  Type: golang

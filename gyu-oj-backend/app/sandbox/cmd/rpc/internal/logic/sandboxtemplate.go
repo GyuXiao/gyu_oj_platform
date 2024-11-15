@@ -1,9 +1,8 @@
 package logic
 
 import (
-	"context"
 	"github.com/pkg/errors"
-	"github.com/zeromicro/go-zero/core/logc"
+	"github.com/zeromicro/go-zero/core/logx"
 	"gyu-oj-backend/app/sandbox/cmd/rpc/pb"
 	"gyu-oj-backend/app/sandbox/models/enums"
 	"gyu-oj-backend/common/xerr"
@@ -17,14 +16,12 @@ var (
 	MemoryLimit      = 128                     //内存限制（MB）
 )
 
-var ctx = context.Background()
-
 func SandboxTemplate(c ExecuteCodeItf, param *pb.ExecuteCodeReq) (*pb.ExecuteCodeResp, error) {
 	resp := &pb.ExecuteCodeResp{}
 	// 1，保存文件
 	userCodePath, err := c.SaveCodeToFile([]byte(param.Code))
 	if err != nil {
-		logc.Infof(ctx, "保存文件错误, err: %v", err)
+		logx.Infof("保存文件错误, err: %v", err)
 		resp.Status = enums.SystemError.GetStatus()
 		resp.Message = enums.SystemError.GetMsg()
 		return resp, err
@@ -34,16 +31,16 @@ func SandboxTemplate(c ExecuteCodeItf, param *pb.ExecuteCodeReq) (*pb.ExecuteCod
 	defer func() {
 		err := c.DropFile(userCodePath)
 		if err != nil {
-			logc.Infof(ctx, "删除文件失败: %v", err)
+			logx.Infof("删除文件失败: %v", err)
 			return
 		}
-		logc.Info(ctx, "删除文件成功")
+		logx.Info("删除文件成功")
 	}()
 
 	// 2，编译代码
 	err = c.CompileCode(userCodePath)
 	if err != nil {
-		logc.Infof(ctx, "编译文件错误: %v", err)
+		logx.Infof("编译文件错误: %v", err)
 		resp.Status = enums.CompileFail.GetStatus()
 		resp.Message = enums.CompileFail.GetMsg()
 		return resp, err
@@ -52,7 +49,7 @@ func SandboxTemplate(c ExecuteCodeItf, param *pb.ExecuteCodeReq) (*pb.ExecuteCod
 	// 3，运行代码
 	runResultList, err := c.RunCode(userCodePath, param.InputList)
 	if err != nil {
-		logc.Infof(ctx, "运行用户代码文件错误: %v", err)
+		logx.Infof("运行用户代码文件错误: %v", err)
 		causeErr := errors.Cause(err)
 		runCodeErr, _ := causeErr.(*xerr.CodeError)
 		if runCodeErr.GetErrCode() == xerr.RunTimeoutError {
@@ -75,7 +72,7 @@ func SandboxTemplate(c ExecuteCodeItf, param *pb.ExecuteCodeReq) (*pb.ExecuteCod
 		return resp, err
 	}
 
-	logc.Info(ctx, "运行代码成功")
+	logx.Info("运行代码成功")
 
 	// 4，整理代码的输出结果
 	resp = c.GetOutputResponse(runResultList)

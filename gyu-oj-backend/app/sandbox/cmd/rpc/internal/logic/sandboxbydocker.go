@@ -61,7 +61,7 @@ func NewSandboxByDocker(ctx context.Context, cli *client.Client) *SandboxByDocke
 func (g *SandboxByDocker) SaveCodeToFile(userCode []byte) (string, error) {
 	dir, err := os.Getwd()
 	if err != nil {
-		logc.Infof(ctx, "获取当前文件夹目录错误: %v", err)
+		logc.Infof(g.Ctx, "获取当前文件夹目录错误: %v", err)
 		return "", err
 	}
 	// 创建存放代码文件的目录文件
@@ -70,7 +70,7 @@ func (g *SandboxByDocker) SaveCodeToFile(userCode []byte) (string, error) {
 	if os.IsNotExist(err) {
 		err = os.Mkdir(path, os.ModePerm)
 		if err != nil {
-			logc.Infof(ctx, "创建存放总代码文件夹错误: %v", err)
+			logc.Infof(g.Ctx, "创建存放总代码文件夹错误: %v", err)
 			return "", err
 		}
 	}
@@ -78,7 +78,7 @@ func (g *SandboxByDocker) SaveCodeToFile(userCode []byte) (string, error) {
 	singleCodeParentPath := fmt.Sprintf("%s/%s", path, tools.GetUUID())
 	err = os.Mkdir(singleCodeParentPath, os.ModePerm)
 	if err != nil {
-		logc.Infof(ctx, "创建存放用户代码的文件夹错误: %v", err)
+		logc.Infof(g.Ctx, "创建存放用户代码的文件夹错误: %v", err)
 		return "", err
 	}
 	// 每个用户的代码的文件路径
@@ -108,18 +108,18 @@ func (g *SandboxByDocker) CompileCode(userCodePath string) error {
 	// 编译成功的话，将得到可执行文件
 	err := compileCmd.Run()
 	if err != nil {
-		logc.Infof(ctx, "编译失败: %v", err)
+		logc.Infof(g.Ctx, "编译失败: %v", err)
 		return err
 	}
 	// 修改可执行文件的文件权限
 	compileFilePath := fmt.Sprintf("%s/%s", parentPath, GoBinaryFileName)
 	err = os.Chmod(compileFilePath, os.ModePerm)
 	if err != nil {
-		logc.Infof(ctx, "修改可执行文件的权限失败: %v", err)
+		logc.Infof(g.Ctx, "修改可执行文件的权限失败: %v", err)
 		return err
 	}
 
-	logc.Infof(ctx, "编译成功: %v", out.String())
+	logc.Infof(g.Ctx, "编译成功: %v", out.String())
 	return nil
 }
 
@@ -134,7 +134,7 @@ func (g *SandboxByDocker) RunCode(userCodePath string, inputList []string) ([]*m
 	// 创建并启动容器
 	containerId, err := g.CreateAndStartContainer(RunGoImage, localToContainerVolume)
 	if err != nil {
-		logc.Infof(ctx, "创建并启动容器错误: ", err)
+		logc.Infof(g.Ctx, "创建并启动容器错误: ", err)
 		return nil, err
 	}
 	globalContainerID = containerId
@@ -215,7 +215,7 @@ func (g *SandboxByDocker) RunCode(userCodePath string, inputList []string) ([]*m
 func (g *SandboxByDocker) getMemoryUsage(memoryCh chan uint64) (int64, error) {
 	memory := <-memoryCh
 	close(memoryCh)
-	logc.Infof(ctx, "内存使用情况: %v", memory)
+	logc.Infof(g.Ctx, "内存使用情况: %v", memory)
 	if tools.BToMb(memory) > uint64(MemoryLimit) {
 		return 0, xerr.NewErrCode(xerr.RunOutOfMemoryError)
 	}
@@ -241,7 +241,7 @@ func (g *SandboxByDocker) runCodeInContainer(containerId string, runCmd []string
 	}
 
 	// 建立连接，获取输出
-	resp, err := g.Cli.ContainerExecAttach(ctx, execCreateResp.ID, container.ExecStartOptions{})
+	resp, err := g.Cli.ContainerExecAttach(g.Ctx, execCreateResp.ID, container.ExecStartOptions{})
 	defer resp.Close()
 	if err != nil {
 		logc.Infof(g.Ctx, "获取 docker 输出失败: %v", err)
@@ -367,14 +367,14 @@ func (g *SandboxByDocker) CreateAndStartContainer(image, volume string) (string,
 
 func (g *SandboxByDocker) StopAndRemoveContainer(containerId string) error {
 	// 删除容器（先停后删）
-	err := g.Cli.ContainerStop(ctx, containerId, container.StopOptions{})
+	err := g.Cli.ContainerStop(g.Ctx, containerId, container.StopOptions{})
 	if err != nil {
-		logc.Infof(ctx, "停止容器错误: %v", err)
+		logc.Infof(g.Ctx, "停止容器错误: %v", err)
 		return err
 	}
-	err = g.Cli.ContainerRemove(ctx, containerId, container.RemoveOptions{})
+	err = g.Cli.ContainerRemove(g.Ctx, containerId, container.RemoveOptions{})
 	if err != nil {
-		logc.Infof(ctx, "删除容器错误: %v", err)
+		logc.Infof(g.Ctx, "删除容器错误: %v", err)
 		return err
 	}
 	return nil
