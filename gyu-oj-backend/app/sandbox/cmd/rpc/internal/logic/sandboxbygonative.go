@@ -130,10 +130,9 @@ func (g *SandboxByGoNative) RunCode(userCodePath string, inputList []string) ([]
 
 func doRun(input string, runCmdStr string) (*models.ExecResult, error) {
 	input = strings.TrimSpace(input)
-	inputArgs := strings.Split(input, " ")
 
 	runCmd := &exec.Cmd{}
-	runCmd = exec.Command(runCmdStr, inputArgs...)
+	runCmd = exec.Command(runCmdStr, input)
 	// 标准输出、标准错误
 	var out, stderr bytes.Buffer
 	runCmd.Stderr = &stderr
