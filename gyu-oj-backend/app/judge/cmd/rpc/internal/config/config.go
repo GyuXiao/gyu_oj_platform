@@ -5,8 +5,8 @@ import "github.com/zeromicro/go-zero/zrpc"
 type Config struct {
 	zrpc.RpcServerConf
 	QuestionRpcConf zrpc.RpcClientConf
-	SandboxRpcConf  zrpc.RpcClientConf
 	CodeSandbox     struct {
 		Type string
+		Url  string
 	}
 }

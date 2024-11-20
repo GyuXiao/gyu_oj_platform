@@ -51,10 +51,3 @@ scrape_configs:
           job: judge-mq
           app: judge-mq
           env: dev
-  - job_name: 'sandbox-rpc'
-    static_configs:
-      - targets: ['gyu_oj_service:4007']
-        labels:
-          job: sandbox-rpc
-          app: sandbox-rpc
-          env: dev

@@ -24,14 +24,10 @@ QuestionRpcConf:
     - 127.0.0.1:2002
   NonBlock: true
 
-SandboxRpcConf:
-  Endpoints:
-    - 127.0.0.1:2004
-  NonBlock: true
-
 Log:
   ServiceName: judge-rpc
   Level: info
 
 CodeSandbox:
   Type: remote
+  Url: sandbox_service_url
