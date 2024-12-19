@@ -46,6 +46,7 @@ message LoginResp {
 // 当前用户
 message CurrentUserReq {
   string authToken = 1;
+  string userId = 2;
 }
 message CurrentUserResp {
   uint64 id = 1;
@@ -59,6 +60,7 @@ message CurrentUserResp {
 // 用户退出
 message LogoutReq {
   string authToken = 1;
+  string userId = 2;
 }
 message LogoutResp {
   bool isLogouted = 1;

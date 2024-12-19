@@ -15,16 +15,19 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
+				// admin create question
 				Method:  http.MethodPost,
 				Path:    "/question/add",
 				Handler: question.CreateQuestionHandler(serverCtx),
 			},
 			{
+				// admin delete question
 				Method:  http.MethodPost,
 				Path:    "/question/delete",
 				Handler: question.DeleteQuestionHandler(serverCtx),
 			},
 			{
+				// admin update question
 				Method:  http.MethodPost,
 				Path:    "/question/update",
 				Handler: question.UpdateQuestionHandler(serverCtx),
@@ -37,32 +40,39 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
-				Method:  http.MethodGet,
-				Path:    "/question/query",
-				Handler: question.QueryQuestionHandler(serverCtx),
-			},
-			{
+				// query question List
 				Method:  http.MethodGet,
 				Path:    "/question/list",
 				Handler: question.QueryQuestionListHandler(serverCtx),
+			},
+			{
+				// query question
+				Method:  http.MethodGet,
+				Path:    "/question/query",
+				Handler: question.QueryQuestionHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/gyu_oj/v1"),
 	)
 
 	server.AddRoutes(
-		[]rest.Route{
-			{
-				Method:  http.MethodPost,
-				Path:    "/questionSubmit/create",
-				Handler: questionSubmit.CreateQuestionSubmitHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/questionSubmit/list",
-				Handler: questionSubmit.QueryQuestionSubmitListHandler(serverCtx),
-			},
-		},
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.JwtAuthMiddleware},
+			[]rest.Route{
+				{
+					// create questionSubmit
+					Method:  http.MethodPost,
+					Path:    "/questionSubmit/create",
+					Handler: questionSubmit.CreateQuestionSubmitHandler(serverCtx),
+				},
+				{
+					// query questionSubmit List
+					Method:  http.MethodGet,
+					Path:    "/questionSubmit/list",
+					Handler: questionSubmit.QueryQuestionSubmitListHandler(serverCtx),
+				},
+			}...,
+		),
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 		rest.WithPrefix("/gyu_oj/v1"),
 	)

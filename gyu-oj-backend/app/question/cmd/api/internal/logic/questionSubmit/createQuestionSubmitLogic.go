@@ -7,7 +7,9 @@ import (
 	"github.com/zeromicro/go-zero/core/logc"
 	"gyu-oj-backend/app/question/cmd/rpc/client/questionsubmit"
 	"gyu-oj-backend/app/user/cmd/rpc/client/user"
+	"gyu-oj-backend/common/ctxdata"
 	"gyu-oj-backend/common/xerr"
+	"strconv"
 	"strings"
 
 	"gyu-oj-backend/app/question/cmd/api/internal/svc"
@@ -33,8 +35,20 @@ func NewCreateQuestionSubmitLogic(ctx context.Context, svcCtx *svc.ServiceContex
 func (l *CreateQuestionSubmitLogic) CreateQuestionSubmit(req *types.CreateQuestionSubmitReq) (*types.CreateQuestionSubmitResp, error) {
 	// 1,用户必须登陆才能提交做题记录
 	token := strings.Split(req.Authorization, " ")[1]
-	currentUser, _ := l.svcCtx.UserRpc.CurrentUser(l.ctx, &user.CurrentUserReq{AuthToken: token})
-	if currentUser == nil {
+	userId := ctxdata.GetUserIdFromCtx(l.ctx)
+	if userId < 0 {
+		logc.Infof(l.ctx, "从 context 中获得的 userId: %v", userId)
+		return nil, xerr.NewErrCode(xerr.UserNotLoginError)
+	}
+
+	currentResp, err := l.svcCtx.UserRpc.CurrentUser(l.ctx, &user.CurrentUserReq{
+		AuthToken: token,
+		UserId:    strconv.FormatInt(userId, 10),
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "req: %+v", req)
+	}
+	if currentResp == nil {
 		return nil, xerr.NewErrCode(xerr.UserNotLoginError)
 	}
 
@@ -43,7 +57,7 @@ func (l *CreateQuestionSubmitLogic) CreateQuestionSubmit(req *types.CreateQuesti
 		Language:   req.Language,
 		SubmitCode: req.SubmitCode,
 		QuestionId: req.QuestionId,
-		UserId:     int64(currentUser.Id),
+		UserId:     int64(currentResp.Id),
 	})
 	if err != nil {
 		return nil, errors.Wrapf(err, "req: %+v", req)

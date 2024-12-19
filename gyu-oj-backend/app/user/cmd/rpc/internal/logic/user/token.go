@@ -62,29 +62,3 @@ func (l *GenerateTokenLogic) getJwtToken(secretKey string, iat, seconds int64, u
 	token.Claims = claims
 	return token.SignedString([]byte(secretKey))
 }
-
-func (l *GenerateTokenLogic) ParseTokenByKey(tokenString string, secretKey string) (jwt.MapClaims, error) {
-	token, err := jwt.Parse(
-		tokenString,
-		func(token *jwt.Token) (interface{}, error) {
-			return []byte(secretKey), nil
-		},
-	)
-	if err != nil {
-		switch vError, ok := err.(*jwt.ValidationError); ok {
-		case vError.Errors&jwt.ValidationErrorMalformed != 0:
-			return nil, xerr.NewErrCode(xerr.TokenMalformed)
-		case vError.Errors&jwt.ValidationErrorExpired != 0:
-			return nil, xerr.NewErrCode(xerr.TokenExpire)
-		case vError.Errors&jwt.ValidationErrorNotValidYet != 0:
-			return nil, xerr.NewErrCode(xerr.TokenNotValidYet)
-		default:
-			return nil, xerr.NewErrCode(xerr.TokenInvalid)
-		}
-	}
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if ok && token.Valid {
-		return claims, nil
-	}
-	return nil, xerr.NewErrCode(xerr.TokenInvalid)
-}

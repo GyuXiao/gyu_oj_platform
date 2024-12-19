@@ -8,7 +8,9 @@ import (
 	"gyu-oj-backend/app/question/cmd/rpc/client/question"
 	"gyu-oj-backend/app/question/cmd/rpc/client/questionsubmit"
 	"gyu-oj-backend/app/user/cmd/rpc/client/user"
+	"gyu-oj-backend/common/ctxdata"
 	"gyu-oj-backend/common/xerr"
+	"strconv"
 	"strings"
 
 	"gyu-oj-backend/app/question/cmd/api/internal/svc"
@@ -34,8 +36,20 @@ func NewQueryQuestionSubmitListLogic(ctx context.Context, svcCtx *svc.ServiceCon
 func (l *QueryQuestionSubmitListLogic) QueryQuestionSubmitList(req *types.QueryQuestionSubmitReq) (*types.QueryQuestionSubmitResp, error) {
 	// 1,用户必须登陆后才能查看题目提交记录
 	token := strings.Split(req.Authorization, " ")[1]
-	currentUser, _ := l.svcCtx.UserRpc.CurrentUser(l.ctx, &user.CurrentUserReq{AuthToken: token})
-	if currentUser == nil {
+	userId := ctxdata.GetUserIdFromCtx(l.ctx)
+	if userId < 0 {
+		logc.Infof(l.ctx, "从 context 中获得的 userId: %v", userId)
+		return nil, xerr.NewErrCode(xerr.UserNotLoginError)
+	}
+
+	currentResp, err := l.svcCtx.UserRpc.CurrentUser(l.ctx, &user.CurrentUserReq{
+		AuthToken: token,
+		UserId:    strconv.FormatInt(userId, 10),
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "req: %+v", req)
+	}
+	if currentResp == nil {
 		return nil, xerr.NewErrCode(xerr.UserNotLoginError)
 	}
 

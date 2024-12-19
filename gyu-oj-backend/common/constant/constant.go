@@ -30,8 +30,9 @@ const (
 // Jwt
 
 const KeyJwtUserId = "jwtUserId"
-const TokenPrefixStr = "login:token:"
+const TokenPrefixStr = "oj:login:token:" // 命名格式为：项目名:业务名:业务对象名
 const TokenExpireTime = time.Hour * 24 * 7
+const AuthorizationHeader = "Authorization"
 
 // Redis Key
 
@@ -39,6 +40,7 @@ const KeyUserId = "user_id"
 const KeyUserRole = "user_role"
 const KeyUsername = "username"
 const KeyAvatarUrl = "avatar_url"
+const KeyUserToken = "user_token"
 
 // CORS
 const (

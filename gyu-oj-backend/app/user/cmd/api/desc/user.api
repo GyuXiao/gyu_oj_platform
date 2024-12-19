@@ -1,9 +1,9 @@
 syntax = "v1"
 
-info(
-	title: "user module"
-	desc: "user module"
-	author: "GyuXiao"
+info (
+	title:   "user module"
+	desc:    "user module"
+	author:  "GyuXiao"
 	version: "v1"
 )
 
@@ -12,12 +12,10 @@ import (
 )
 
 // 用户注册和登陆
-
-@server(
+@server (
 	prefix: gyu_oj/v1
-	group: user
+	group:  user
 )
-
 service user {
 	@doc "userRegister"
 	@handler register
@@ -29,11 +27,11 @@ service user {
 }
 
 // 获取当前用户
-
-@server(
-	prefix: gyu_oj/v1
-	group: user
-	jwt: Auth
+@server (
+	prefix:     gyu_oj/v1
+	group:      user
+	jwt:        Auth
+	middleware: JwtAuthMiddleware
 )
 service user {
 	@doc "get current user"
@@ -42,11 +40,11 @@ service user {
 }
 
 // 用户退出
-
-@server(
-	prefix: gyu_oj/v1
-	group: user
-	jwt: Auth
+@server (
+	prefix:     gyu_oj/v1
+	group:      user
+	jwt:        Auth
+	middleware: JwtAuthMiddleware
 )
 service user {
 	@doc "userLogout"
@@ -56,6 +54,5 @@ service user {
 
 // 在 api/desc 目录下执行
 // goctl api go -api user.api -dir ../  --style=goZero
-
 // 代码格式化
 // goctl api format --dir user.api

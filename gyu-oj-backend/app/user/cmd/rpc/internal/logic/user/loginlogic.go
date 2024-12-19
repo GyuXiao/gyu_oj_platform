@@ -54,7 +54,7 @@ func (l *LoginLogic) Login(in *pb.LoginReq) (*pb.LoginResp, error) {
 	}
 	// token 存入缓存
 	// key field value 的格式如下
-	// login:token:xxx {userId: xxx, userRole: xxx, username: xxx, avatarUrl: xxx}
+	// oj:login:token:xxx {userId: xxx, user_role: xxx, username: xxx, avatar_url: xxx, user_token: xxx}
 	tokenLogic := token.NewDefaultTokenModel(l.svcCtx.RedisClient)
 	err = tokenLogic.InsertToken(tokenResp.accessToken, uint64(user.ID), uint8(user.UserRole), user.Username, user.AvatarURL)
 	if err != nil {

@@ -14,39 +14,49 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
-				Method:  http.MethodPost,
-				Path:    "/user/register",
-				Handler: user.RegisterHandler(serverCtx),
-			},
-			{
+				// userLogin
 				Method:  http.MethodPost,
 				Path:    "/user/login",
 				Handler: user.LoginHandler(serverCtx),
+			},
+			{
+				// userRegister
+				Method:  http.MethodPost,
+				Path:    "/user/register",
+				Handler: user.RegisterHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/gyu_oj/v1"),
 	)
 
 	server.AddRoutes(
-		[]rest.Route{
-			{
-				Method:  http.MethodGet,
-				Path:    "/user/current",
-				Handler: user.CurrentHandler(serverCtx),
-			},
-		},
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.JwtAuthMiddleware},
+			[]rest.Route{
+				{
+					// get current user
+					Method:  http.MethodGet,
+					Path:    "/user/current",
+					Handler: user.CurrentHandler(serverCtx),
+				},
+			}...,
+		),
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 		rest.WithPrefix("/gyu_oj/v1"),
 	)
 
 	server.AddRoutes(
-		[]rest.Route{
-			{
-				Method:  http.MethodPost,
-				Path:    "/user/logout",
-				Handler: user.LogoutHandler(serverCtx),
-			},
-		},
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.JwtAuthMiddleware},
+			[]rest.Route{
+				{
+					// userLogout
+					Method:  http.MethodPost,
+					Path:    "/user/logout",
+					Handler: user.LogoutHandler(serverCtx),
+				},
+			}...,
+		),
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 		rest.WithPrefix("/gyu_oj/v1"),
 	)

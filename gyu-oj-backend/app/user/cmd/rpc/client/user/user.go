@@ -22,7 +22,6 @@ type (
 	RegisterReq     = pb.RegisterReq
 	RegisterResp    = pb.RegisterResp
 	User            = pb.User
-	UserVO          = pb.UserVO
 
 	UserZrpcClient interface {
 		Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginResp, error)

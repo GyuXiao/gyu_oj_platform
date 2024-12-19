@@ -6,6 +6,7 @@ import (
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"gyu-oj-backend/common/constant"
 	"gyu-oj-backend/common/xerr"
+	"strconv"
 	"sync"
 )
 
@@ -38,13 +39,15 @@ func NewDefaultTokenModel(rds *redis.Redis) JwtTokenModel {
 // 向 Redis 中插入一条 token 记录，记录 UserId 和 UserRole 信息
 
 func (rds *defaultTokenModel) InsertToken(token string, userId uint64, userRole uint8, username string, avatarUrl string) error {
-	key := constant.TokenPrefixStr + token
+	uidStr := strconv.Itoa(int(userId))
+	key := constant.TokenPrefixStr + uidStr
 	err := rds.PipelinedCtx(ctx, func(pipeline redis.Pipeliner) error {
 		pipeline.HSet(ctx, key,
 			constant.KeyUserId, userId,
 			constant.KeyUserRole, userRole,
 			constant.KeyUsername, username,
-			constant.KeyAvatarUrl, avatarUrl)
+			constant.KeyAvatarUrl, avatarUrl,
+			constant.KeyUserToken, token)
 		pipeline.Expire(ctx, key, constant.TokenExpireTime)
 		_, execErr := pipeline.Exec(ctx)
 		return execErr
@@ -58,10 +61,10 @@ func (rds *defaultTokenModel) InsertToken(token string, userId uint64, userRole 
 
 // 判断 Redis 中是否存在对应的 token 记录
 
-func (rds *defaultTokenModel) CheckTokenExist(token string) ([]string, error) {
-	key := constant.TokenPrefixStr + token
-	// result 的格式是 [userId, userRole, username, avatarUrl]
-	result, err := rds.HmgetCtx(ctx, key, constant.KeyUserId, constant.KeyUserRole, constant.KeyUsername, constant.KeyAvatarUrl)
+func (rds *defaultTokenModel) CheckTokenExist(uidStr string) ([]string, error) {
+	key := constant.TokenPrefixStr + uidStr
+	// result 的格式是 [userId, userRole, username, avatarUrl, userToken]
+	result, err := rds.HmgetCtx(ctx, key, constant.KeyUserId, constant.KeyUserRole, constant.KeyUsername, constant.KeyAvatarUrl, constant.KeyUserToken)
 	if err != nil {
 		logc.Infof(ctx, "redis HMGet key err: %v", err)
 		return nil, xerr.NewErrCode(xerr.TokenGetFromCacheError)
@@ -74,12 +77,12 @@ func (rds *defaultTokenModel) CheckTokenExist(token string) ([]string, error) {
 
 // 刷新 token 的过期时间
 
-func (rds *defaultTokenModel) RefreshToken(token string) {
-	_, err := rds.CheckTokenExist(token)
+func (rds *defaultTokenModel) RefreshToken(uidStr string) {
+	_, err := rds.CheckTokenExist(uidStr)
 	if err != nil {
 		logc.Info(ctx, err)
 	}
-	key := constant.TokenPrefixStr + token
+	key := constant.TokenPrefixStr + uidStr
 	err = rds.ExpireCtx(ctx, key, int(constant.TokenExpireTime.Seconds()))
 	if err != nil {
 		logc.Info(ctx, xerr.NewErrCode(xerr.KeyExpireError))
@@ -88,9 +91,9 @@ func (rds *defaultTokenModel) RefreshToken(token string) {
 
 // 删除 token
 
-func (rds *defaultTokenModel) DeleteToken(token string) error {
-	key := constant.TokenPrefixStr + token
-	_, err := rds.HdelCtx(ctx, key, constant.KeyUserId, constant.KeyUserRole, constant.KeyUsername, constant.KeyAvatarUrl)
+func (rds *defaultTokenModel) DeleteToken(uidStr string) error {
+	key := constant.TokenPrefixStr + uidStr
+	_, err := rds.HdelCtx(ctx, key, constant.KeyUserId, constant.KeyUserRole, constant.KeyUsername, constant.KeyAvatarUrl, constant.KeyUserToken)
 	if err != nil {
 		logc.Infof(ctx, "redis HDel key err: %v", err)
 		return xerr.NewErrCode(xerr.KeyDelError)
