@@ -15,10 +15,6 @@ Telemetry:
   Sampler: 1.0
   Batcher: jaeger
 
-JwtAuth:
-  AccessSecret: ae0536f9-6450-4606-8e13-5a19ed505da0
-  AccessExpire: 604800 # 一周
-
 QuestionRpcConf:
   Endpoints:
     - 127.0.0.1:2002

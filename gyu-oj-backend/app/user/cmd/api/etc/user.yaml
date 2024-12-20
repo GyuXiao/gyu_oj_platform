@@ -18,8 +18,8 @@ Telemetry:
 
 #jwtAuth
 Auth:
-  AccessSecret: ae0536f9-6450-4606-8e13-5a19ed505da0
-  AccessExpire: 604800 # 一周
+  AccessSecret: AccessSecret # 根据具体业务要求进行配置
+  AccessExpire: 604800       # 默认是一周
 
 Log:
   ServiceName: user-api
