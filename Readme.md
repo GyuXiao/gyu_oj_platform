@@ -10,10 +10,10 @@
 - 代码评测，样例校验
 
 ## 技术栈
-前端：Vue3 + Arco Design 组件库
+前端：vue-cli 框架 + Arco Design 组件库
 
 后端：
-- 语言：Golang + go-zero 框架 + Gorm + gRPC
+- 语言：Golang + go-zero 框架 + GORM + gRPC
 - 数据库：MySQL
 - 缓存：Redis
 - 消息队列：RabbitMQ
@@ -42,22 +42,34 @@
 - 不同配置的优缺点：
     - golang：响应速度快，但安全性不如 docker
     - docker：响应速度不如 golang 原生，但安全性较高
-- 启动项目（建议在 linux 环境下）：
+- 启动项目（建议在 linux 环境下）： 
+  - 先进入到对应的目录：
   ```bash
-  modd
+    cd cmd/api/sandbox.go
   ```
+  - 进入项目根目录，执行：
+  ```bash
+    go run sandbox.go
+  ```
+
+
 1，启动 gyu_oj_backend 项目
 - 拉取项目：
   ```bash
   git clone git@github.com:GyuXiao/gyu_oj_platform.git
   ```
-- 先配置运行环境：
+- 进入项目根目录，先配置运行环境：
   - 修改 docker-compose-env.yml 文件的
       - mysql_password
       - redis_password
   - 修改 app/user/rpc/etc/user.yaml 文件的
       - mysql_password
       - redis_password
+      - JwtAuth.AccessSecret
+  - 修改 app/user/api/etc/user.yaml 文件的
+    - JwtAuth.AccessSecret
+  - 修改 app/question/api/etc/question.yaml 文件的
+    - JwtAuth.AccessSecret
   - 修改 app/question/rpc/etc/question.yaml 文件的
       - mysql_password
   - 修改 app/judge/rpc/etc/judge.yaml 文件的
@@ -69,7 +81,6 @@
   # 再启动项目
   docker-compose -f docker-compose.yml up -d
   ```
->说明：password 的话，根据开发者喜好设置，Url 则是 gyu_oj_sandbox 服务所在的网络
 
 2，启动 gyu_oj_frontend 项目
 - 环境要求：
@@ -82,4 +93,7 @@
   ```
 
 
-
+> 项目配置说明：  
+> MySQL 或 Redis 的 password，根据开发者喜好设置，  
+> JwtAuth.AccessSecret 则是根据业务需求设置对应的 Jwt 密钥  
+> CodeSandbox.Url 则是 gyu_oj_sandbox 服务所在的网络
